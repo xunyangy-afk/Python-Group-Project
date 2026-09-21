@@ -1,0 +1,17 @@
+# Downloaded datasets
+*.parquet
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.jsonl
+*.ndjson
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+
+# Local data directories
+data/
+datasets/
+downloads/
