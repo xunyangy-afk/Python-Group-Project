@@ -1,0 +1,15 @@
+# .gitignore for Python-Group-Project/Evelyn_Herculean
+# virtual environment
+.venv/
+# Python cache
+.uv-cache/
+.cache/
+__pycache__/
+# data files
+data/
+cleaned/
+.ipynb_checkpoints/
+.DS_Store
+download_herculean.py
+requirements.txt
+requirements-cleaning.txt
