@@ -7,7 +7,7 @@ This project cleans and validates the local Herculean prices, news, and filings 
 - **Student:** Zack Ye
 - **Individual branch:** `Zack-Work`
 - **Branch URL:** https://github.com/xunyangy-afk/Python-Group-Project/tree/Zack-Work
-- **Submitted analysis commit:** 2aef989b64c4cedfbbb20ae5b68e309e80e71f67
+- **Submitted analysis commit:** 255fb690ce1a3151166fcad64e353cff9c3cddb8
 
 Use the same branch information and analysis commit ID in the individual PDF. The analysis commit identifies the code and results being reviewed; a later documentation-only commit may add that ID to this README.
 
