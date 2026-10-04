@@ -13,6 +13,7 @@
 
 ### 1. State the vision along with a specific analysis question
 **Status:** Done
+
 **Evidence or explanation:**
 - **Vision:** A junior equity research analyst on a technology-sector coverage team must decide which of the seven mega-cap technology stocks (AAPL, MSFT, GOOGL, AMZN, NVDA, META, TSLA) to prioritize for this week's deep-dive research, based on relative price performance, volatility, trading-volume activity, and recent news or filing events.
 - **Business question:** How does company news relate to subsequent price changes and trading volume?
@@ -21,6 +22,7 @@
 
 ### 2. Define one row
 **Status:** Done
+
 **Evidence or explanation:**
 
 | Table | One row is | Unique key | Check |
@@ -33,10 +35,12 @@ Source: `outputs/validation_report.md`, Validation 1.
 
 ### 3. Preserve the source
 **Status:** Done
+
 **Evidence or explanation:** Source is TheFinAI/Herculean on Hugging Face, repository commit `52d3ecb`, retrieved 2026-10-04, license CC BY 4.0. The three parquet files sit unchanged in `data/raw/`; the code only reads them and writes to `data/clean/`. SHA-256 checksums are identical before and after a full run (`outputs/reproducibility_peter.md`). Download and reload steps: `README_peter.md`.
 
 ### 4. Inspect columns and types
 **Status:** Done
+
 **Evidence or explanation:**
 
 | Column | Original type | Converted to | Failed conversions |
@@ -51,6 +55,7 @@ No values failed, so no fallback rule was needed. Source: `clean_common` in `cle
 
 ### 5. Standardize text
 **Status:** Done
+
 **Evidence or explanation:**
 - Filings text stored characters as HTML entities in all 63 MD&A sections and 58 of 63 risk sections. Decoded to the real characters (D8); 0 entities remain. News had none.
   - before: `' Item 2. Management&#8217;s Discussion and Analysis'`
@@ -63,10 +68,12 @@ Source: `outputs/validation_report.md`, Step 3 and Validation 5; notebook sectio
 
 ### 6. Investigate duplicates
 **Status:** Done
+
 **Evidence or explanation:** Exact duplicate rows: 0 in every table. Repeated id: 0. Repeated (symbol, date): 0. No duplicates removed. One valid repetition in content: 7 quarterly filings repeat the previous filing's risk section word for word (AMZN 3, GOOGL 2, TSLA 2). These are real filings saying "no change", so they are kept and marked `flag_risk_repeat`. Source: Validation 1 and 4.
 
 ### 7. Handle missing data
 **Status:** Done
+
 **Evidence or explanation:** No original column has missing values before or after cleaning. New missing values exist only in derived columns, by design:
 
 | Field | Missing after | Decision | Business reason |
@@ -85,6 +92,7 @@ Source: Validation 1.
 
 ### 8. Check suspicious values
 **Status:** Done
+
 **Evidence or explanation:** Invalid dates 0; non-positive prices 0; zero volume 0; OHLC logic violations 0; no weekend price rows. Unusual but kept:
 
 | Finding | Rows | Action | Why |
@@ -98,6 +106,7 @@ Two first-draft rules were too broad and revised after reading the flagged rows 
 
 ### 9. Verify merges
 **Status:** Done
+
 **Evidence or explanation:** Join used by the business question: news (symbol, reaction_date) to prices (symbol, date), where `reaction_date` is the first session after the news date (D9). Expected relationship many to one: Friday, weekend and holiday news share the next session.
 
 | Check | Result |
@@ -111,6 +120,7 @@ A plain merge on (symbol, date) would silently drop the 1,078 weekend and holida
 
 ### 10. Reconcile changes
 **Status:** Done
+
 **Evidence or explanation:**
 
 | Table | Start | Excluded: ADBE out of scope (D7) | Other rows removed | Final |
@@ -123,6 +133,7 @@ Total volume: 159,456,800,900 shares before; 158,002,379,300 after; the differen
 
 ### 11. Check calculations
 **Status:** Done
+
 **Evidence or explanation:**
 
 | Metric | Records total | Records used | Excluded because |
@@ -137,14 +148,17 @@ Averages use records used as the denominator and state it; excluded rows stay in
 
 ### 12. Verify individual records
 **Status:** Done
+
 **Evidence or explanation:** Six difficult records traced from original to cleaned; all six match. See the Record checks section below and `outputs/record_checks_peter.csv`.
 
 ### 13. Test reproducibility
 **Status:** Done (Peter-work) **[TEAM: repeat for the final team version]**
+
 **Evidence or explanation:** `python3 reproduce_check_peter.py` copies the raw files and `clean_peter.py` into an empty folder, runs `python3 clean_peter.py` in a new process and compares every output: all 9 output files match the submitted version and raw checksums are unchanged. Notebook procedure: Restart kernel, Run All; 0 errors. Source: `outputs/reproducibility_peter.md`.
 
 ### 14. Document remaining limitations
 **Status:** Unresolved (documented)
+
 **Evidence or explanation:**
 1. **News exists every day for every stock.** There is no "no-news" day to compare against, so news presence alone cannot explain price moves. The analysis needs a measure of news content or importance (filing dates as discrete events, summary length, or a sentiment score added later). Without it, the answer to the business question is limited to filings and to qualitative reading of news.
 2. **Association, not cause.** A news day followed by a big move does not show that the news caused it; market-wide days such as 2025-04-09 move all stocks at once. Comparing each stock with the others on the same day helps separate company news from market news.
