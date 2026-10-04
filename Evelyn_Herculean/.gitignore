@@ -11,5 +11,3 @@ cleaned/
 .ipynb_checkpoints/
 .DS_Store
 download_herculean.py
-requirements.txt
-requirements-cleaning.txt
