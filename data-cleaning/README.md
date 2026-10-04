@@ -6,7 +6,7 @@ This folder contains the cleaning workflow for the financial stock/news/filings 
 
 - Branch name: `[Olivia-work]`
 - Branch URL: `[https://github.com/xunyangy-afk/Python-Group-Project.git]`
-- Commit ID: `[fill in submitted commit hash]`
+- Commit ID: `[f9cfd31]`
 
 ## Contents
 
