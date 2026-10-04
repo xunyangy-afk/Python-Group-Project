@@ -2,7 +2,13 @@
 
 ## 1. Goal
 
-Clean the TheFinAI/Herculean raw tables (prices, news, filings) so they can be used for analysis and a dashboard supporting our project vision: evaluating which agent/model setup should produce weekly equity research reports. "Clean" here means: correct types, no silent row loss, and every suspicious record flagged rather than quietly deleted, so the dataset still represents what the agents actually saw.
+**Vision (team, confirmed):** a junior equity research analyst on a technology-sector coverage team must decide which of the seven mega-cap technology stocks (AAPL, MSFT, GOOGL, AMZN, NVDA, META, TSLA) to prioritize for this week's deep-dive research, based on relative price performance, volatility, trading-volume activity, and recent news or filing events.
+
+**Business question:** how does company news relate to subsequent price changes and trading volume?
+
+Clean the TheFinAI/Herculean raw tables (prices, news, filings) so they can answer that question. "Clean" here means: only the seven stocks in scope, correct types, no silent row loss, every news row and filing linked to the session that follows it, and every suspicious record flagged rather than quietly deleted.
+
+> Sections 3 to 6 record the first inspection, done on all 8 companies before the vision was fixed. Section 7 records what changed after.
 
 Input: `data/raw/prices.parquet`, `data/raw/news.parquet`, `data/raw/filings.parquet`
 Output: `data/clean/*.parquet` plus `outputs/validation_report.md`
@@ -42,6 +48,7 @@ Structurally clean. The real issues are content quality:
 | volume | keep as int64 |
 | daily_return (new) | `adj_close.pct_change()` within each symbol, sorted by date; first day per symbol is NaN by design |
 | flag_large_move (new) | abs(daily_return) > 0.12; keep the row |
+| volume_ratio_20d (new) | volume / mean volume of the previous 20 sessions; first 20 sessions per stock NaN (D10) |
 
 ### news
 | Column | Rule |
@@ -52,7 +59,8 @@ Structurally clean. The real issues are content quality:
 | flag_placeholder (new) | "no content" phrasing in a text under 1,000 characters, or text_len < 200 (see refinement 1) |
 | latest_date_mentioned, flag_lookahead (new) | latest explicit date written in the text; flag if later than the row date (see refinement 2) |
 | is_trading_day (new) | date exists in prices calendar |
-| next_trading_date (new) | for joining weekend news to the next market session |
+| next_trading_date (new) | same day if it is a session, otherwise the next one (alignment) |
+| reaction_date (new) | first session strictly after the news date: the subsequent session in the business question (D9) |
 
 ### filings
 | Column | Rule |
@@ -63,6 +71,7 @@ Structurally clean. The real issues are content quality:
 | mda_len, risk_len (new) | character count |
 | flag_risk_repeat (new) | risk_content identical to the same company's previous filing |
 | flag_risk_reference_only (new) | risk_len < 1,000 (10-Q that only points back to the 10-K) |
+| reaction_date, in_price_window (new) | first session after the filing date; NaT and False when filed before the price data starts (D9) |
 
 ## 5. Decisions for the human in the loop
 
@@ -74,8 +83,10 @@ Structurally clean. The real issues are content quality:
 | D4 | Drop repeated or reference-only risk sections? | Keep and flag. A repeated risk section is real information ("nothing changed"). |
 | D5 | Treat >12% moves as errors? | No. They match known market events. Flag for the dashboard only. |
 | D6 | close or adj_close for returns? | adj_close, so dividends do not show up as fake drops. |
+| D7 | Keep ADBE? | **Decided by the team: exclude.** ADBE is not one of the seven stocks in the vision. Its rows are removed by `apply_scope` and counted (332 prices, 486 news, 10 filings). |
 | D8 | Decode HTML entities in filings text? | Yes. Same characters, readable encoding; text lengths and keyword searches become reliable. |
-| D7 | Keep ADBE? Jim's sample output only shows 7 symbols. | Keep all 8 (project-start.md says eight companies). Confirm with the team. |
+| D9 | Which session does news "relate to"? | The first session strictly after the news date (`reaction_date`). A daily summary may include after-close news, so the same session could reverse cause and effect. Friday, weekend and holiday news all point to the next open session. |
+| D10 | How to measure unusual volume? | Volume divided by the average of the previous 20 sessions (`volume_ratio_20d`), so stocks with very different share counts are comparable. The first 20 sessions per stock have no full baseline and stay NaN rather than using a shorter window. |
 
 ## 6. Validation checklist (run after cleaning)
 
@@ -90,7 +101,7 @@ Structurally clean. The real issues are content quality:
 
 ## 7. Decisions confirmed and refinements
 
-All decisions D1 to D7 were accepted with the proposed defaults (D7 still to be confirmed with the team).
+Decisions D1 to D6 and D8 were accepted with the proposed defaults; D7, D9 and D10 follow the team's vision.
 
 Implementation: `clean_peter.py`. Results: `outputs/validation_report.md`.
 
@@ -98,4 +109,6 @@ Implementation: `clean_peter.py`. Results: `outputs/validation_report.md`.
 2. **Look-ahead rule replaced.** A keyword search matched 33 rows, but nearly all were disclaimers saying future information had been excluded. New rule compares explicit dates in the text with the row date and finds 1 real leak (ADBE 2025-02-15 mentions the 2025-02-25 Photoshop for iPhone launch).
 3. **Encoded characters decoded (D8).** While assembling evidence for the Module 6 checklist (item 5), filings text turned out to store characters as HTML entities. They are now decoded; no entities remain after cleaning, and the risk flags did not change (7 repeats, 9 reference-only).
 
-Added for the Module 6 checklist: news-to-prices merge check, records supporting each metric, five record checks, a 47-row inspection sample (`samples_peter/`), and a fresh-session reproducibility test (`reproduce_check_peter.py`).
+4. **Vision fixed by the team (D7, D9, D10).** Scope is now seven stocks, so ADBE rows are excluded and counted. Because the question is about *subsequent* price and volume changes, every news row and filing gets `reaction_date`, and prices get `volume_ratio_20d`. In scope: 7 large moves, 7 placeholder news rows, 0 look-ahead rows (the one leak was ADBE), 1,078 non-trading-day news rows, 28 of 63 filings before the price data starts.
+
+Added for the Module 6 checklist: news-to-subsequent-session merge check, records supporting each metric, six record checks, a 45-row inspection sample (`samples_peter/`), and a fresh-session reproducibility test (`reproduce_check_peter.py`).

@@ -1,6 +1,6 @@
 # Data cleaning: Peter-work
 
-Individual Module 6 cleaning of the TheFinAI/Herculean dataset. The rules and decisions are in `plan.md`; the results are in `outputs/validation_report.md`.
+Individual Module 6 cleaning of the TheFinAI/Herculean dataset for the team vision: a junior equity research analyst decides which of seven mega-cap tech stocks (AAPL, MSFT, GOOGL, AMZN, NVDA, META, TSLA) to prioritize, asking how company news relates to subsequent price changes and trading volume. ADBE is in the source data but outside this scope. The rules and decisions are in `plan.md`; the results are in `outputs/validation_report.md`.
 
 ## Source and version
 
@@ -36,12 +36,12 @@ Notebook: open `check_cleaning_peter.ipynb`, select a Python kernel that has the
 
 | File | Contents |
 |---|---|
-| `data/clean/prices_clean.parquet` | 2,656 rows, 11 columns |
-| `data/clean/news_clean.parquet` | 3,888 rows, 10 columns |
-| `data/clean/filings_clean.parquet` | 73 rows, 10 columns |
-| `samples_peter/*_sample_peter.csv` | 47 cleaned rows in total, all columns, each with a `sample_reason` |
-| `outputs/validation_report.md` | before/after counts, flags, merge check, metric support, record checks |
-| `outputs/record_checks_peter.csv` | five original-to-cleaned record checks |
+| `data/clean/prices_clean.parquet` | 2,324 rows, 12 columns |
+| `data/clean/news_clean.parquet` | 3,402 rows, 11 columns |
+| `data/clean/filings_clean.parquet` | 63 rows, 12 columns |
+| `samples_peter/*_sample_peter.csv` | 45 cleaned rows in total, all columns, each with a `sample_reason` |
+| `outputs/validation_report.md` | scope, before/after counts, flags, merge check, metric support, record checks |
+| `outputs/record_checks_peter.csv` | six original-to-cleaned record checks |
 | `outputs/metric_support_peter.csv` | records supporting each metric |
 | `outputs/reproducibility_peter.md` | fresh-session rerun result |
 
@@ -59,4 +59,4 @@ The cleaned parquet files are not on GitHub (they rebuild in seconds from the ra
 
 ## How the sample was selected
 
-The sample is weighted toward difficult cases: all 9 large price moves, the first trading day of each symbol (no return), all 8 placeholder news rows, the 1 look-ahead news row, a weekend and a holiday news row, all 12 filings with repeated or reference-only risk sections, ADBE's extra 10-K, and a few ordinary rows as controls. The checks themselves always run on the full data.
+The sample is weighted toward difficult cases: all 7 large price moves, the first session of each stock (no return or volume baseline), the first session with a full volume baseline, all 7 placeholder news rows, Friday, weekend and holiday news, last-day news with no next session, all 12 filings with repeated or reference-only risk sections, a filing from before the price data, and a few ordinary rows as controls. The checks themselves always run on the full data.
