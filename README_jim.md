@@ -86,4 +86,4 @@ No tables are merged in this assignment.
 Repository: https://github.com/xunyangy-afk/Python-Group-Project
 Branch: Jim-Work
 Branch URL: https://github.com/xunyangy-afk/Python-Group-Project/tree/Jim-Work
-Verified code commit: To be added after committing.
+Verified code commit: b7c0715c10ba61f8d95f0cb64453728153ab0257
