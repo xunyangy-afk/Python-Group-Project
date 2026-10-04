@@ -26,8 +26,8 @@ Output: `data/clean/*.parquet` plus `outputs/validation_report.md`
 Structurally clean. The real issues are content quality:
 
 - **prices**: OHLC logic holds (high >= open/close >= low), no zero volume, no weekend rows, same 332 trading days for every symbol. 9 daily moves above 12% (e.g. 2025-04-09 tariff pause rally, NVDA 2025-01-27 DeepSeek drop). adj_close differs from close by up to about 1% for dividend payers.
-- **news**: one row per symbol per calendar day, so 1,232 rows fall on weekends or market holidays with no price row. Some rows are LLM "no content" placeholders (e.g. "no substantive GOOGL events to report") or fragments (e.g. 25 characters: "The article also includes"). Some rows may mention information dated after the row date (look-ahead risk). 84 rows say sentiment is N/A.
-- **filings**: every text field has leading whitespace. 7 quarterly filings repeat the previous filing's risk section word for word (AMZN, GOOGL, TSLA). Several 10-Q risk sections are only a few hundred characters ("refer to our 10-K"), not real risk text.
+- **news**: one row per symbol per calendar day, so 1,232 rows fall on weekends or market holidays with no price row. Some rows are LLM "no content" placeholders (e.g. "no substantive GOOGL events to report") or fragments (e.g. 25 characters: "The article also includes"). Some rows may mention information dated after the row date (look-ahead risk). 84 rows contain "N/A" or "n/a" (often a missing sentiment score).
+- **filings**: every text field has leading whitespace, and characters are stored as HTML entities (`&#8217;`, `&#160;`, `&#38;`) in all 73 MD&A sections and 68 risk sections (found in refinement 3). 7 quarterly filings repeat the previous filing's risk section word for word (AMZN, GOOGL, TSLA). Several 10-Q risk sections are only a few hundred characters ("refer to our 10-K"), not real risk text.
 - **dates** are stored as Python `datetime.date` objects (dtype object), not datetime64.
 
 ## 4. Cleaning rules by table and column
@@ -59,7 +59,7 @@ Structurally clean. The real issues are content quality:
 |---|---|
 | id, symbol, date | same as prices |
 | document_type | category, allowed values {10-K, 10-Q} |
-| mda_content, risk_content | strip leading/trailing whitespace only |
+| mda_content, risk_content | decode HTML entities to the real characters, non-breaking spaces to spaces, strip ends; wording unchanged (D8) |
 | mda_len, risk_len (new) | character count |
 | flag_risk_repeat (new) | risk_content identical to the same company's previous filing |
 | flag_risk_reference_only (new) | risk_len < 1,000 (10-Q that only points back to the 10-K) |
@@ -74,6 +74,7 @@ Structurally clean. The real issues are content quality:
 | D4 | Drop repeated or reference-only risk sections? | Keep and flag. A repeated risk section is real information ("nothing changed"). |
 | D5 | Treat >12% moves as errors? | No. They match known market events. Flag for the dashboard only. |
 | D6 | close or adj_close for returns? | adj_close, so dividends do not show up as fake drops. |
+| D8 | Decode HTML entities in filings text? | Yes. Same characters, readable encoding; text lengths and keyword searches become reliable. |
 | D7 | Keep ADBE? Jim's sample output only shows 7 symbols. | Keep all 8 (project-start.md says eight companies). Confirm with the team. |
 
 ## 6. Validation checklist (run after cleaning)
@@ -95,3 +96,6 @@ Implementation: `clean_peter.py`. Results: `outputs/validation_report.md`.
 
 1. **Placeholder rule tightened.** First run flagged 20 news rows; reading them showed 12 were real summaries that only said one of several articles was empty. New rule gives 8 rows, all confirmed placeholders.
 2. **Look-ahead rule replaced.** A keyword search matched 33 rows, but nearly all were disclaimers saying future information had been excluded. New rule compares explicit dates in the text with the row date and finds 1 real leak (ADBE 2025-02-15 mentions the 2025-02-25 Photoshop for iPhone launch).
+3. **Encoded characters decoded (D8).** While assembling evidence for the Module 6 checklist (item 5), filings text turned out to store characters as HTML entities. They are now decoded; no entities remain after cleaning, and the risk flags did not change (7 repeats, 9 reference-only).
+
+Added for the Module 6 checklist: news-to-prices merge check, records supporting each metric, five record checks, a 47-row inspection sample (`samples_peter/`), and a fresh-session reproducibility test (`reproduce_check_peter.py`).

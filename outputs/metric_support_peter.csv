@@ -1,0 +1,5 @@
+metric,table,records_total,records_used,records_excluded,excluded_because,missing_group_keys
+daily return / volatility per symbol,prices,2656,2648,8,first trading day of each symbol has no prior price,0
+news coverage per symbol and day,news,3888,3880,8,placeholder or fragment summaries (flag_placeholder),0
+news free of look-ahead,news,3888,3887,1,text mentions a date after the row date (flag_lookahead),0
+new risk disclosure per filing,filings,73,61,12,risk section repeated or only refers to the 10-K,0

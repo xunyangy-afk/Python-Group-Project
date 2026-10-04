@@ -7,10 +7,12 @@ so it can be checked on its own in check_cleaning_peter.ipynb.
 
 Input : data/raw/{prices,news,filings}.parquet   (download from Hugging Face)
 Output: data/clean/{prices,news,filings}_clean.parquet
-        outputs/validation_report.md
+        samples_peter/{prices,news,filings}_sample_peter.csv   (47 rows in total)
+        outputs/validation_report.md, record_checks_peter.csv, metric_support_peter.csv
 Run   : python3 clean_peter.py
 """
 from pathlib import Path
+import html
 import re
 import pandas as pd
 
@@ -22,6 +24,7 @@ LARGE_MOVE = 0.12           # D5: flag only, never drop
 SHORT_TEXT = 200            # D1: news shorter than this is a fragment
 PLACEHOLDER_MAX_LEN = 1000  # D1: placeholder phrasing only counts in short texts (refinement 1)
 RISK_REFERENCE_ONLY = 1000  # D4: 10-Q risk section that only points to the 10-K
+HTML_ENTITY = r"&#\d+;|&[a-z]+;"   # D8: encoded characters such as &#8217; in filings text
 
 PLACEHOLDER_PATTERN = (
     r"no substantive|cannot be (?:identified|constructed)|no basis to summarize"
@@ -113,12 +116,20 @@ def clean_news(news_raw, trading_days):
 
 
 # ------------------------------------------------------------------ filings
+def decode_text(text):
+    """Refinement 3 (D8): turn HTML entities into the characters they stand for
+    (&#8217; to a right quote, &#38; to &) and non-breaking spaces into normal spaces,
+    then strip. Wording is not changed."""
+    text = html.unescape(text)
+    return text.replace("\u00a0", " ").replace("\u202f", " ").strip()
+
+
 def clean_filings(filings_raw):
-    """Clean filings. Strips whitespace in text only. Adds mda_len, risk_len,
-    flag_risk_repeat and flag_risk_reference_only (D4)."""
+    """Clean filings. Decodes HTML entities and strips whitespace in text only (D8).
+    Adds mda_len, risk_len, flag_risk_repeat and flag_risk_reference_only (D4)."""
     filings = clean_common(filings_raw)
     for col in ["mda_content", "risk_content"]:
-        filings[col] = filings[col].str.strip()
+        filings[col] = filings[col].map(decode_text)
     filings["document_type"] = filings["document_type"].str.strip().astype("category")
     filings["mda_len"] = filings["mda_content"].str.len()
     filings["risk_len"] = filings["risk_content"].str.len()
@@ -171,6 +182,158 @@ def flag_summary(prices, news, filings):
     return flags
 
 
+
+def join_news_to_prices(news, prices):
+    """Join each news row to the price row of its next_trading_date (many news rows to one
+    price row). Returns (joined DataFrame, dict of row counts for the merge check)."""
+    right = prices[["symbol", "date", "close", "daily_return"]].rename(
+        columns={"date": "next_trading_date", "close": "session_close", "daily_return": "session_return"})
+    joined = news.merge(right, on=["symbol", "next_trading_date"], how="left",
+                        validate="many_to_one", indicator=True)
+    price_keys = set(zip(prices["symbol"], prices["date"]))
+    news_keys = set(zip(news["symbol"], news["next_trading_date"]))
+    stats = {
+        "news_rows_before": len(news),
+        "rows_after_join": len(joined),
+        "unmatched_news_rows": int((joined["_merge"] != "both").sum()),
+        "price_rows_with_no_news": len(price_keys - news_keys),
+        "max_news_rows_per_price_row": int(news.groupby(["symbol", "next_trading_date"], observed=True).size().max()),
+    }
+    return joined.drop(columns="_merge"), stats
+
+
+def metric_support(prices, news, filings):
+    """How many records support each planned metric, and why the rest are excluded."""
+    usable_risk = ~(filings["flag_risk_repeat"] | filings["flag_risk_reference_only"])
+    rows = [
+        ("daily return / volatility per symbol", "prices", len(prices),
+         int(prices["daily_return"].notna().sum()), "first trading day of each symbol has no prior price"),
+        ("news coverage per symbol and day", "news", len(news),
+         int((~news["flag_placeholder"]).sum()), "placeholder or fragment summaries (flag_placeholder)"),
+        ("news free of look-ahead", "news", len(news),
+         int((~news["flag_lookahead"]).sum()), "text mentions a date after the row date (flag_lookahead)"),
+        ("new risk disclosure per filing", "filings", len(filings),
+         int(usable_risk.sum()), "risk section repeated or only refers to the 10-K"),
+    ]
+    out = pd.DataFrame(rows, columns=["metric", "table", "records_total", "records_used", "excluded_because"])
+    out["records_excluded"] = out["records_total"] - out["records_used"]
+    out["missing_group_keys"] = [int(prices[["symbol", "date"]].isna().any(axis=1).sum()),
+                                 int(news[["symbol", "date"]].isna().any(axis=1).sum()),
+                                 int(news[["symbol", "date"]].isna().any(axis=1).sum()),
+                                 int(filings[["symbol", "date"]].isna().any(axis=1).sum())]
+    return out[["metric", "table", "records_total", "records_used", "records_excluded",
+                "excluded_because", "missing_group_keys"]]
+
+
+def _row(df, symbol, date):
+    hit = df[(df["symbol"] == symbol) & (pd.to_datetime(df["date"]) == pd.Timestamp(date))]
+    assert len(hit) == 1, (symbol, date, len(hit))
+    return hit.iloc[0]
+
+
+def record_checks(raw, clean):
+    """Five original-to-cleaned record checks, chosen as difficult cases.
+    Returns one row per check with expected and actual results."""
+    checks = []
+
+    def add(n, table, symbol, date, case, expected, actual, why):
+        checks.append({"check": n, "table": table, "symbol": symbol, "date": date, "case": case,
+                       "expected": expected, "actual": actual, "match": expected == actual, "why_expected": why})
+
+    p_raw, p = raw["prices"], clean["prices"]
+    r0, c0 = _row(p_raw, "AAPL", "2024-12-02"), _row(p, "AAPL", "2024-12-02")
+    add(1, "prices", "AAPL", "2024-12-02", "first trading day in the data",
+        f"kept; close {r0['close']:.2f}; daily_return NaN; not flagged",
+        f"kept; close {c0['close']:.2f}; daily_return {'NaN' if pd.isna(c0['daily_return']) else c0['daily_return']}; "
+        f"{'flagged' if c0['flag_large_move'] else 'not flagged'}",
+        "no earlier price exists, so a return cannot be computed; filling 0 would invent a flat day")
+
+    nv = p[p["symbol"] == "NVDA"].reset_index(drop=True)
+    i = nv.index[nv["date"] == pd.Timestamp("2025-01-27")][0]
+    manual = nv.loc[i, "adj_close"] / nv.loc[i - 1, "adj_close"] - 1
+    c1 = nv.loc[i]
+    add(2, "prices", "NVDA", "2025-01-27", "largest one-day drop (DeepSeek news)",
+        f"kept; daily_return {manual:.4f}; flag_large_move True",
+        f"kept; daily_return {c1['daily_return']:.4f}; flag_large_move {bool(c1['flag_large_move'])}",
+        "expected return is a hand calculation from adj_close; real market event, so the value is "
+        "correct and must stay; the flag lets the dashboard explain it")
+
+    n_raw, n = raw["news"], clean["news"]
+    r2, c2 = _row(n_raw, "ADBE", "2025-01-26"), _row(n, "ADBE", "2025-01-26")
+    add(3, "news", "ADBE", "2025-01-26", "25-character fragment on a Sunday",
+        "kept; text unchanged; flag_placeholder True; next_trading_date 2025-01-27",
+        f"kept; text {'unchanged' if c2['highlights'] == r2['highlights'].strip() else 'CHANGED'}; "
+        f"flag_placeholder {bool(c2['flag_placeholder'])}; next_trading_date {c2['next_trading_date'].date()}",
+        "an empty summary is still what the agent received; dropping it would break one row per day")
+
+    r3, c3 = _row(n_raw, "ADBE", "2025-02-15"), _row(n, "ADBE", "2025-02-15")
+    add(4, "news", "ADBE", "2025-02-15", "Saturday before a market holiday, mentions a later event",
+        "kept; flag_lookahead True (mentions 2025-02-25); next_trading_date 2025-02-18",
+        f"kept; flag_lookahead {bool(c3['flag_lookahead'])} (mentions {c3['latest_date_mentioned'].date()}); "
+        f"next_trading_date {c3['next_trading_date'].date()}",
+        "Feb 17 2025 was Presidents Day, so the next session is Feb 18; the Feb 25 Photoshop launch "
+        "could not have been known on Feb 15")
+
+    f_raw, f = raw["filings"], clean["filings"]
+    r4, c4 = _row(f_raw, "TSLA", "2024-07-23"), _row(f, "TSLA", "2024-07-23")
+    prev = _row(f, "TSLA", "2024-04-23")
+    add(5, "filings", "TSLA", "2024-07-23", "10-Q whose risk section only points to the 10-K",
+        "kept; leading space removed; risk_len 329; same as previous filing; both risk flags True",
+        f"kept; leading space {'removed' if not c4['risk_content'].startswith(' ') and r4['risk_content'].startswith(' ') else 'NOT removed'}; "
+        f"risk_len {c4['risk_len']}; {'same as' if c4['risk_content'] == prev['risk_content'] else 'differs from'} previous filing; "
+        f"both risk flags {bool(c4['flag_risk_repeat'] and c4['flag_risk_reference_only'])}",
+        "raw text is 333 characters with 4 whitespace characters at the ends, so 329 after stripping; the filing is real, and its short repeated text means no new risk disclosure, which analysis must know")
+    return pd.DataFrame(checks)
+
+
+def make_sample(prices, news, filings, max_rows=50):
+    """Inspection sample of cleaned rows with all columns, weighted toward difficult cases.
+    Returns {table: DataFrame}; each row carries a sample_reason."""
+    def pick(df, mask, reason, n=None):
+        out = df[mask].copy()
+        out = out.head(n) if n else out
+        out.insert(0, "sample_reason", reason)
+        return out
+
+    first_day = prices.groupby("symbol", observed=True).cumcount() == 0
+    normal_p = ~first_day & ~prices["flag_large_move"]
+    p_s = pd.concat([
+        pick(prices, prices["flag_large_move"], "large move > 12% (flagged, kept)"),
+        pick(prices, first_day, "first trading day: daily_return NaN by design"),
+        pick(prices, normal_p & (prices["date"] == pd.Timestamp("2025-06-02")), "ordinary day (control)", 2),
+    ])
+
+    weekend = news["date"].dt.dayofweek >= 5
+    holiday = ~news["is_trading_day"] & ~weekend
+    ordinary = news["is_trading_day"] & ~news["flag_placeholder"] & ~news["flag_lookahead"]
+    n_s = pd.concat([
+        pick(news, news["flag_placeholder"], "placeholder or fragment (flagged, kept)"),
+        pick(news, news["flag_lookahead"], "mentions a later date (flagged, kept)"),
+        pick(news, holiday & (news["symbol"] == "AAPL"), "weekday market holiday mapped to next session", 1),
+        pick(news, weekend & ~news["flag_placeholder"] & (news["symbol"] == "MSFT"), "weekend mapped to next session", 1),
+        pick(news, ordinary & (news["symbol"] == "NVDA"), "ordinary trading day (control)", 2),
+    ])
+
+    flagged = filings["flag_risk_repeat"] | filings["flag_risk_reference_only"]
+    adbe_extra = (filings["symbol"] == "ADBE") & (filings["date"] == filings["date"].min())
+    f_s = pd.concat([
+        pick(filings, flagged, "risk section repeated or reference-only (flagged, kept)"),
+        pick(filings, adbe_extra, "ADBE has 10 filings vs 9 for others (Jan 2024 10-K)"),
+        pick(filings, ~flagged & (filings["symbol"] == "MSFT"), "ordinary filing (control)", 2),
+    ])
+    sample = {"prices": p_s, "news": n_s, "filings": f_s}
+    total = sum(len(v) for v in sample.values())
+    assert total <= max_rows, f"sample has {total} rows, limit {max_rows}"
+    return sample
+
+
+def save_sample(sample, sample_dir="samples_peter"):
+    sample_dir = Path(sample_dir)
+    sample_dir.mkdir(parents=True, exist_ok=True)
+    for name, df in sample.items():
+        df.to_csv(sample_dir / f"{name}_sample_peter.csv", index=False)
+
+
 # ------------------------------------------------------------------ output
 def save_clean(prices, news, filings, clean_dir=CLEAN):
     clean_dir = Path(clean_dir)
@@ -209,7 +372,10 @@ def build_report(raw, clean):
     add("## Step 3: filings")
     for col in ["mda_content", "risk_content"]:
         n = int((filings_raw[col] != filings_raw[col].str.strip()).sum())
-        add(f"- Stripped leading/trailing whitespace in {col}: {n} rows.")
+        e = int(filings_raw[col].str.contains(HTML_ENTITY, regex=True).sum())
+        left = int(filings[col].str.contains(HTML_ENTITY, regex=True).sum())
+        add(f"- {col}: stripped leading/trailing whitespace in {n} rows; decoded HTML entities in {e} rows "
+            f"(rows still containing entities after cleaning: {left}).")
     bad_types = set(filings["document_type"].unique()) - {"10-K", "10-Q"}
     add(f"- document_type values outside {{10-K, 10-Q}}: {sorted(bad_types) or 'none'}.")
     add(f"- flag_risk_repeat (D4): {int(filings['flag_risk_repeat'].sum())} rows, kept.")
@@ -263,9 +429,29 @@ def build_report(raw, clean):
         .assign(date=lambda d: d["date"].dt.date, next_trading_date=lambda d: d["next_trading_date"].dt.date)
         .to_markdown(index=False) + "\n")
     raw_sorted = filings_raw.sort_values(["symbol", "date"]).reset_index(drop=True)
-    add("Filings before vs after (first 3 characters of mda_content):\n")
-    add(f"- before: {[raw_sorted['mda_content'].iloc[i][:3] for i in range(3)]}")
-    add(f"- after : {[filings['mda_content'].iloc[i][:3] for i in range(3)]}\n")
+    add("Filings text before vs after (AAPL 2024-02-01, first 60 characters of mda_content):\n")
+    add(f"- before: `{raw_sorted['mda_content'].iloc[0][:60]!r}`")
+    add(f"- after : `{filings['mda_content'].iloc[0][:60]!r}`\n")
+
+    add("## Validation 6: join news to prices (merge check)\n")
+    _, js = join_news_to_prices(news, prices)
+    add("Keys: (symbol, next_trading_date) in news to (symbol, date) in prices. Expected relationship: "
+        "many news rows to one price row (weekend and holiday news share the next session).\n")
+    for k, v in js.items():
+        add(f"- {k}: {v}")
+    add("")
+
+    add("## Validation 7: records supporting each metric\n")
+    add(metric_support(prices, news, filings).to_markdown(index=False) + "\n")
+    add("Averages and totals use only records_used; excluded rows stay in the data with their flag, so the "
+        "denominator is always stated rather than silently shrinking.\n")
+
+    add("## Validation 8: five original-to-cleaned record checks\n")
+    rc = record_checks(raw, clean)
+    add(rc[["check", "table", "symbol", "date", "case", "expected", "actual", "match"]].to_markdown(index=False) + "\n")
+    for _, c in rc.iterrows():
+        add(f"- Check {c['check']} reasoning: {c['why_expected']}.")
+    add("")
 
     add("## Refinements made after the first validation run\n")
     add("1. **Placeholder news.** The first rule flagged 20 rows. Reading them showed 12 were long, real "
@@ -275,7 +461,12 @@ def build_report(raw, clean):
     add("2. **Look-ahead news.** A keyword search matched 33 rows, but nearly all were disclaimers stating "
         "that future information had been excluded, the opposite of a leak. The rule now compares explicit "
         "dates written in the text with the row date. Result: 1 row (ADBE 2025-02-15 mentions the "
-        "2025-02-25 Photoshop for iPhone launch), a real leak.\n")
+        "2025-02-25 Photoshop for iPhone launch), a real leak.")
+    add("3. **Encoded characters in filings.** Building the checklist evidence showed that filings text stores "
+        "characters as HTML entities (`&#8217;` for a right quote, `&#160;` for a non-breaking space, `&#38;` "
+        "for &). All 73 MD&A sections and 68 risk sections were affected; news had none. These are decoded to "
+        "the real characters, which changes encoding, not wording, and makes text lengths and keyword "
+        "searches reliable.\n")
 
     add("## Conclusion: does the cleaned data still represent reality?\n")
     add("Yes. No rows were dropped and no original values or wording were changed beyond whitespace, so every "
@@ -283,7 +474,7 @@ def build_report(raw, clean):
         "logic checks, and the 9 large moves line up with known events (2025-04-09 tariff pause rally, NVDA "
         "DeepSeek drop on 2025-01-27). The quality problems are now visible through flags instead of hidden: "
         "8 empty news rows, 1 look-ahead leak, 1,232 non-trading-day news rows aligned to the next session, "
-        "and 16 filings whose risk section is repeated or only refers to the 10-K. Anyone analysing agent "
+        "and 12 filings whose risk section is repeated or only refers to the 10-K. Anyone analysing agent "
         "report quality should filter or control for these flags rather than treat all rows as equal.")
     return "\n".join(r) + "\n"
 
@@ -299,11 +490,14 @@ def run_pipeline(raw_dir=RAW, clean_dir=CLEAN, out_dir=OUT):
     raw = {"prices": prices_raw, "news": news_raw, "filings": filings_raw}
     clean = {"prices": prices, "news": news, "filings": filings}
     save_clean(prices, news, filings, clean_dir)
+    save_sample(make_sample(prices, news, filings))
     Path(out_dir).mkdir(parents=True, exist_ok=True)
+    record_checks(raw, clean).to_csv(Path(out_dir) / "record_checks_peter.csv", index=False)
+    metric_support(prices, news, filings).to_csv(Path(out_dir) / "metric_support_peter.csv", index=False)
     (Path(out_dir) / "validation_report.md").write_text(build_report(raw, clean), encoding="utf-8")
     return clean
 
 
 if __name__ == "__main__":
     run_pipeline()
-    print("Saved data/clean/*.parquet and outputs/validation_report.md")
+    print("Saved data/clean/*.parquet, samples_peter/*.csv and outputs/")
