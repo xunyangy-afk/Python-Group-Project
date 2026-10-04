@@ -1,0 +1,8 @@
+record,original,expected,reason,actual,matches_expected
+Prices ID 1,"Date=2024-12-02, adj_close=238.28829956054688, volume=48137100",Retained; numeric values and date unchanged,AAPL is in scope; preserve numeric values and calendar date.,"Date=2024-12-02, adj_close=238.28829956054688, volume=48137100",True
+Prices ID 333,"Symbol=ADBE, date=2024-12-02",Excluded,ADBE is outside the seven-company scope.,Rows found: 0,True
+News ID 1,"Date=2024-12-01; Apple’s December 1, 2024 coverage centers on its fiscal first quarter 2024 results, with Shacknews reporting that the company generated revenue of $11",Retained; highlights and date unchanged,Keep news even when there is no same-day price observation.,"Date=2024-12-01, text unchanged=True",True
+Filings ID 1, Item 2. Management&#8217;s Discussion and Analysis of Financial Condition and Results of Operations,Management&#8217;s becomes Management’s,Decode HTML punctuation for readability.," Item 2. Management’s Discussion and Analysis of Financial Condition and Results of Operations 
+
+Thi",True
+Prices ID 665,"First AMZN observation: date=2024-12-02, adj_close=210.7100067138672",Retained; first AMZN return is missing,The first observation has no previous price within its company.,daily_return=nan,True
