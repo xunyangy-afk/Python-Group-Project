@@ -1,2 +1,3 @@
 data/
 cleaning_outputs/
+__pycache__/
