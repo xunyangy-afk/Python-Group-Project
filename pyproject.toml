@@ -1,0 +1,22 @@
+[project]
+name = "python-group-project"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Nicole Lainez", email = "nlainez@usc.edu" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "datasets>=5.1.0",
+    "pandas>=3.0.6",
+    "pyarrow>=25.0.1",
+    "reportlab>=5.0.1",
+]
+
+[project.scripts]
+python-group-project = "python_group_project:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
