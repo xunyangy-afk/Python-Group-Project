@@ -1,0 +1,191 @@
+{
+  "Evelyn-Workbook": {
+    "commit": "bf5e61121c5bf8a0453b900e72ad2c5e0a8c4eee",
+    "reviewed_artifacts": [
+      {
+        "path": "Evelyn_Herculean/Cleaning_Evelyn.ipynb",
+        "git_blob": "0edfb841956c523d7641548177bc4e4098fa6083",
+        "code_cells": 29,
+        "executed_cells": 29,
+        "stored_error_outputs": 0
+      },
+      {
+        "path": "Evelyn_Herculean/README.md",
+        "git_blob": "130d8945dd8e259d7eb02a1ce4a167b5b7f06b08"
+      },
+      {
+        "path": "Evelyn_Herculean/clean_data.py",
+        "git_blob": "7f174b8afaa6608699fb8f0aed912fe4e888e490"
+      },
+      {
+        "path": "Evelyn_Herculean/plan.md",
+        "git_blob": "4b342bd6044f3997e767b33adad5633d7f078b2d"
+      },
+      {
+        "path": "Evelyn_Herculean/test_clean_data.py",
+        "git_blob": "817f1c45e3d57ac34050d7fa3245b62455082565"
+      },
+      {
+        "path": "plan.md",
+        "git_blob": "a1de8d7b29934cabcd9309bc8c2937e9c48f8c73"
+      }
+    ],
+    "status": "Static implementation and stored evidence reviewed; historical workflows not rerun."
+  },
+  "Jim-Work": {
+    "commit": "8e466e2f916b8f54e5382d29d7debf01c3020ac3",
+    "reviewed_artifacts": [
+      {
+        "path": "README_jim.md",
+        "git_blob": "bf74a416bf61227a3eba7c8921624d79b9b761b9"
+      },
+      {
+        "path": "cleaning_jim.ipynb",
+        "git_blob": "a659e8bbc971bea280fd8aa71233203242633027",
+        "code_cells": 30,
+        "executed_cells": 29,
+        "stored_error_outputs": 0
+      },
+      {
+        "path": "cleaning_jim.py",
+        "git_blob": "1589866f5fdce6014bde580b0c105e02c89ce5b3"
+      }
+    ],
+    "status": "Static implementation and stored evidence reviewed; historical workflows not rerun."
+  },
+  "Olivia-work": {
+    "commit": "5cd1f54243711bb73b73775d86c8e472167685c9",
+    "reviewed_artifacts": [
+      {
+        "path": "data-cleaning/README.md",
+        "git_blob": "dda745e1d93b96a7e88b60a8949cbcd340a2f179"
+      },
+      {
+        "path": "data-cleaning/checklist_answers.ipynb",
+        "git_blob": "6455720678a25e082b3e290922e16b58b5f67480",
+        "code_cells": 0,
+        "executed_cells": 0,
+        "stored_error_outputs": 0
+      },
+      {
+        "path": "data-cleaning/clean_data.py",
+        "git_blob": "b7e59fdc3397131efdcb661c197d05578e2fc1cf"
+      },
+      {
+        "path": "data-cleaning/cleaning.ipynb",
+        "git_blob": "dfb43a1d4de31e56480e981c922dd36caabf693b",
+        "code_cells": 15,
+        "executed_cells": 0,
+        "stored_error_outputs": 0
+      },
+      {
+        "path": "data-cleaning/plan.md",
+        "git_blob": "359d8dab53722583e7d4bdd60ca186b0ffcd7cde"
+      },
+      {
+        "path": "test/data_exploration.ipynb",
+        "git_blob": "85b170f94292c7b45eb8eff314db4142a0af357a",
+        "code_cells": 7,
+        "executed_cells": 7,
+        "stored_error_outputs": 0
+      }
+    ],
+    "status": "Static implementation and stored evidence reviewed; historical workflows not rerun."
+  },
+  "Peter-work": {
+    "commit": "fb782fe53d42951551832940c714897592d71ef5",
+    "reviewed_artifacts": [
+      {
+        "path": "MODULE6_CHECKLIST.md",
+        "git_blob": "68b9998559029663518ed2db62b5bdad74d536ba"
+      },
+      {
+        "path": "README_peter.md",
+        "git_blob": "de08208e4e8011fd273fc0dbf340cd878ac5f1b8"
+      },
+      {
+        "path": "check_cleaning_peter.ipynb",
+        "git_blob": "7cd4d8768a36891a582fbc041d9ea42d101499dd",
+        "code_cells": 26,
+        "executed_cells": 26,
+        "stored_error_outputs": 0
+      },
+      {
+        "path": "clean_peter.py",
+        "git_blob": "4d9bda4ddc0eaa0828ba2e5af6be76e00d90b5b7"
+      },
+      {
+        "path": "outputs/reproducibility_peter.md",
+        "git_blob": "5607730e4771a2f764f595cfbda1115e97e92b69"
+      },
+      {
+        "path": "outputs/validation_report.md",
+        "git_blob": "d6eda7fed6d677391bb4d3a5c0353a4753197ba3"
+      },
+      {
+        "path": "plan.md",
+        "git_blob": "098f5e5a1a38069de2c26f1cbe5d8c944ac7bd66"
+      },
+      {
+        "path": "reproduce_check_peter.py",
+        "git_blob": "70e5a9b61f8f4bab5a8950747f50e522d8b8f371"
+      }
+    ],
+    "status": "Static implementation and stored evidence reviewed; historical workflows not rerun."
+  },
+  "Zack-Work": {
+    "commit": "b4cb2aa5450ee145fb7787e44f6139492aefc679",
+    "reviewed_artifacts": [
+      {
+        "path": "Herculean_Mag7_Module6.ipynb",
+        "git_blob": "baeaaeec95a3cd7a6281b96f42f068a3369e1bfe",
+        "code_cells": 18,
+        "executed_cells": 18,
+        "stored_error_outputs": 0
+      },
+      {
+        "path": "README.md",
+        "git_blob": "4e4fb771a51d6d5a0fab07cbeca0297cdf7e913c"
+      },
+      {
+        "path": "cleaning.py",
+        "git_blob": "d3f8c2c0776ac099d636858a989fea94027e498c"
+      }
+    ],
+    "status": "Static implementation and stored evidence reviewed; historical workflows not rerun."
+  },
+  "cleaning-nicole": {
+    "commit": "eb3dc4a93d6c3e40d0d69205f862030aeb27581f",
+    "reviewed_artifacts": [
+      {
+        "path": "README.md",
+        "git_blob": "bee2c00a1bdc8da342c8d6a711564ff35f044a49"
+      },
+      {
+        "path": "checklist.md",
+        "git_blob": "1952be8084d7d71f2622d209abe46cde355eec0f"
+      },
+      {
+        "path": "clean_data.py",
+        "git_blob": "071cc5a5708c96121512ea80a0d8057b3b8f0bf5"
+      },
+      {
+        "path": "cleaning_decision_log.md",
+        "git_blob": "130a68f5c57d1fe6f044f667c4aa1d63f4d6cefc"
+      },
+      {
+        "path": "record_checks.md",
+        "git_blob": "73338fafc55f9fde71c3f0d9216af85f1481fcc7"
+      },
+      {
+        "path": "src/python_group_project/__init__.py",
+        "git_blob": "d9ce871a96f1d1d34f764ceb2a32535e6e8a6f45"
+      },
+      {
+        "path": "verification_evidence.md",
+        "git_blob": "c0d6beb0664cc3eb5d32b08536cbcdf67e0efbdf"
+      }
+    ],
+    "status": "Static implementation and stored evidence reviewed; historical workflows not rerun."
+  }
+}
