@@ -209,6 +209,9 @@ def run(raw_dir=ROOT / "sources/raw", output_dir=ROOT / "artifacts"):
     raw, clean, excluded, stats, changes, hashes = {}, {}, {}, {}, [], {}
     for name in TABLES:
         path = raw_dir / f"{name}.parquet"
+        if not path.is_file():
+            raise FileNotFoundError(f"Missing local raw input: {path}. Raw data is not stored in Git. "
+                                    "Obtain the complete snapshot matching sources/manifest.json and place it in --raw-dir.")
         hashes[name] = sha256(path)
         require(hashes[name] == source["tables"][name]["sha256"], f"{name}: source snapshot mismatch")
         raw[name] = pd.read_parquet(path)

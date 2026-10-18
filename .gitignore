@@ -7,4 +7,5 @@ __pycache__/
 # Preserve pre-existing local originals and individual-run artifacts.
 /data/
 /cleaning_outputs/
-# Full team snapshot, cleaned tables and evidence are intentionally tracked.
+# Raw inputs stay local. Only their manifest, cleaned tables and audit evidence are tracked.
+/sources/raw/

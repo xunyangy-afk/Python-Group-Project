@@ -22,5 +22,6 @@
       "sha256": "822a854865651e042c9d64288785efa0f2c0fecdec2a16016ff3c2e7a5601299",
       "bytes": 600603
     }
-  }
+  },
+  "storage": "Raw files are local-only in ignored sources/raw/ and are not tracked in Git. Obtain the complete snapshot separately and verify these hashes."
 }

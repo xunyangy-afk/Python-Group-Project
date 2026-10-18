@@ -20,7 +20,7 @@ test_returns_no_fill_and_no_cross_symbol (test_risks.RiskTests.test_returns_no_f
 test_source_hash_and_output_overlap_protection (test_risks.RiskTests.test_source_hash_and_output_overlap_protection) ... ok
 
 ----------------------------------------------------------------------
-Ran 11 tests in 0.293s
+Ran 11 tests in 0.292s
 
 OK
 ```

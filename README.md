@@ -6,7 +6,9 @@ The unified solution was merged through [PR #1](https://github.com/xunyangy-afk/
 
 ## Run the complete workflow
 
-Use Python 3.13 from the repository root. After installing dependencies, `verify_cleaning.py` runs the risk tests, executes two full cleaning runs in fresh Python processes, and checks source preservation and output reproducibility.
+Use Python 3.13 from the repository root. Raw inputs are intentionally not stored in Git. Before running, place the complete `prices.parquet`, `news.parquet`, and `filings.parquet` snapshot in the ignored `sources/raw/` directory. Obtain the files from a team member holding this exact snapshot, or from an authorized source, and match all three SHA256 hashes in [sources/manifest.json](sources/manifest.json). Do not substitute samples or assume the latest upstream files are identical. Source access may require authentication; exact upstream revision remains unconfirmed.
+
+After installing dependencies, `verify_cleaning.py` runs the risk tests, executes two full cleaning runs in fresh Python processes, and checks source preservation and output reproducibility.
 
 Windows PowerShell:
 
@@ -43,7 +45,7 @@ The recorded environment is Python 3.13.15, pandas 3.0.1, numpy 2.3.5, and pyarr
 | `team_cleaning/__main__.py` | Command-line entry point |
 | `tests/test_risks.py` | Eleven tests covering duplicates, conflicts, dates, missingness, text structure, numeric anomalies, calculations, joins, and source protection |
 | `verify_cleaning.py` | Test runner and two-process full-snapshot reproducibility check |
-| `sources/raw/` | Three complete, unchanged source Parquet files |
+| `sources/raw/` (local only; ignored) | Place the three complete source Parquet files here before running; these files are not included in Git |
 | `sources/manifest.json` | Snapshot identity, attribution notes, byte sizes, SHA256 hashes, and provenance limitations |
 | `sources/branch_revisions.json`, `sources/review_inventory.json` | Reviewed branch commits, file identities, and stored notebook execution inventory |
 | `artifacts/*_clean.parquet` | Three complete formal Magnificent Seven tables |
@@ -58,11 +60,11 @@ Existing project notes were preserved. Individual notebooks, temporary review ex
 
 ## Data source and snapshot
 
-Source: [TheFinAI/Herculean](https://huggingface.co/datasets/TheFinAI/Herculean). Individual branch documentation attributes the dataset to TheFinAI / Xueqing Peng, *Herculean*. Existing local originals were copied byte for byte into `sources/raw/`; the original `data/` files were not modified.
+Source: [TheFinAI/Herculean](https://huggingface.co/datasets/TheFinAI/Herculean). Individual branch documentation attributes the dataset to TheFinAI / Xueqing Peng, *Herculean*. Raw inputs stay on the local filesystem in the ignored `sources/raw/` directory; the original `data/` files were not modified. Git stores the source manifest and hashes, not the raw files.
 
 The exact local version is `team-local-sha256-v1`. [sources/manifest.json](sources/manifest.json) records each file's full SHA256 and byte size. The hashes match Zack's local source manifest and the prefixes in Peter's reproducibility record.
 
-**The upstream revision and original download date are unconfirmed.** Evelyn recorded different hashes and an upstream revision that cannot be assigned to these files. On October 18, 2026, a fixed-revision source README request required authentication. Individual documentation reports CC BY 4.0, but the upstream revision and redistribution terms were not independently confirmed. A member with source access should confirm the terms and retain the required attribution/license materials before public redistribution. These limitations do not prevent reproduction from the included snapshot.
+**The upstream revision and original download date are unconfirmed.** Evelyn recorded different hashes and an upstream revision that cannot be assigned to these files. On October 18, 2026, a fixed-revision source README request required authentication. Individual documentation reports CC BY 4.0, but the upstream revision and redistribution terms were not independently confirmed. A member with source access should confirm the terms and retain the required attribution/license materials before public redistribution of derived data. Reproduction requires separately obtaining the complete local snapshot matching the manifest.
 
 ## Complete formal datasets
 
@@ -72,9 +74,9 @@ The exact local version is `team-local-sha256-v1`. [sources/manifest.json](sourc
 | [news_clean.parquet](artifacts/news_clean.parquet) | 3,402 | One company/date news digest record; unique table ID; distinct same-day events are allowed |
 | [filings_clean.parquet](artifacts/filings_clean.parquet) | 63 | One filing record with excerpts; unique table ID; candidate business key `symbol,date,document_type` |
 
-These are full datasets, not 50-row samples. Together they occupy about 6.13 MB; the largest file is news at about 5.37 MB. The raw files occupy about 5.88 MB. Ordinary Git is sufficient for this snapshot; Git LFS is not required.
+These are full datasets, not 50-row samples. Together they occupy about 6.13 MB; the largest file is news at about 5.37 MB. Ordinary Git is sufficient for these cleaned outputs; Git LFS is not required. Raw input files are not tracked.
 
-Formal tables, the raw snapshot, and exclusions are tracked. `.gitignore` excludes the pre-existing local `data/` and `cleaning_outputs/` directories, environments, caches, and temporary review files. If future snapshots become large, use versioned access-controlled object storage with immutable URLs and SHA256 manifests for raw data, and Git LFS for large formal outputs. Do not replace complete deliverables with samples.
+Formal tables, exclusions, provenance metadata, and audit evidence are tracked. `.gitignore` excludes raw inputs in `sources/raw/`, the pre-existing local `data/` and `cleaning_outputs/` directories, environments, caches, and temporary review files. Use access-controlled external storage for sharing raw snapshots, identified by the manifest hashes. If formal outputs become large, use Git LFS for those derived outputs. Do not replace complete deliverables with samples.
 
 ## Cleaning and analysis rules
 

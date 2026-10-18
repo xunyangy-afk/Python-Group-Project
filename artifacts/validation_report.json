@@ -276,14 +276,15 @@
         "sha256": "822a854865651e042c9d64288785efa0f2c0fecdec2a16016ff3c2e7a5601299",
         "bytes": 600603
       }
-    }
+    },
+    "storage": "Raw files are local-only in ignored sources/raw/ and are not tracked in Git. Obtain the complete snapshot separately and verify these hashes."
   },
   "source_sha256": {
     "prices": "736c124db22e976dbf4ec1dd65e5a983497e5890e7999f7925b343dee5c965d5",
     "news": "1fd109796eada02af37a15178cc150ec252e7c02bc440c3f76641eb8fab6da25",
     "filings": "822a854865651e042c9d64288785efa0f2c0fecdec2a16016ff3c2e7a5601299"
   },
-  "source_manifest_sha256": "127b6f2a28531d1ce81eb027af75835e1d0f65b5fc32f00c3d94bd0f4b00af17",
+  "source_manifest_sha256": "f494290ac98ff030498295b1297be57a0c66c3ad03339e1db287c3cf6b1d027d",
   "joins": {
     "news": {
       "event_rows": 3402,
