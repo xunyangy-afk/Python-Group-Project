@@ -1,0 +1,10 @@
+.venv/
+.uv-cache/
+.review/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+# Preserve pre-existing local originals and individual-run artifacts.
+/data/
+/cleaning_outputs/
+# Full team snapshot, cleaned tables and evidence are intentionally tracked.
