@@ -15,4 +15,4 @@ Validation executed with `python verify_cleaning.py`:
 
 Team review remains necessary for the proposed 12%/text thresholds, conflict quarantine rules and interval metric conventions. Upstream revision, source date semantics, price adjustment methodology and exchange-calendar completeness are unverified. The upstream fixed-revision request required authentication; individual documentation reports CC BY 4.0, but redistribution terms still require confirmation from a member with source access before public publication. The local snapshot is identified by exact hashes, not an inferred upstream revision.
 
-No Dashboard, push or merge into main is part of this change.
+No Dashboard is included. This PR merges the unified analysis-ready solution into main at the repository owner's request; unresolved methodological and provenance questions remain documented rather than being represented as unanimous team approval.
