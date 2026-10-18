@@ -1,69 +1,73 @@
-# 团队清洗整合决策记录
+# Team Cleaning Integration Decisions
 
-本实现服务于初级股票研究分析师：比较七巨头的价格表现、波动率、成交量、新闻和财报，从而选择值得进一步研究的 1–2 只股票。本次交付限于清洗、分析接口和必要验证，不建立 Dashboard，不作投资推荐。
+This implementation supports a junior equity research analyst comparing the Magnificent Seven by price performance, volatility, trading volume, news, and filings to select 1–2 stocks for deeper research. The deliverable covers cleaning, analysis interfaces, and necessary validation. It does not build a dashboard or make investment recommendations.
 
-七巨头范围、完整正式输出、原始数据保留、adj_close 收益、缺失值不填零等来自本次用户要求。其余阈值、冲突处理和分析约定均为**本 PR 建议，待团队确认**；没有声称六位成员已经批准。
+The seven-stock universe, complete formal outputs, preservation of original inputs, adjusted-close returns, and prohibition on replacing missing values with zero come from the user's requirements. Other thresholds, conflict policies, and analysis conventions are **proposals pending team confirmation**. This document does not claim approval by all six contributors.
 
-## 比较范围与证据
+## Review scope and evidence
 
-已 fetch origin；从 origin/main 创建本地 team-cleaning。开始时工作区干净，没有需要移动或覆盖的未提交工作；原有忽略目录 data/、cleaning_outputs/ 保留。没有依次 merge 六分支，也没有执行任何成员的旧脚本覆盖本地成果。
+The initial integration fetched origin and created the local `team-cleaning` branch from `origin/main`. The working tree was clean; no uncommitted work needed to be moved or overwritten. Existing ignored `data/` and `cleaning_outputs/` directories were preserved. The six branches were not merged sequentially, and contributors' old scripts were not run over local results.
 
-比较的是以下固定 commit 的代码、Notebook 单元与已保存输出、测试和验证文件，而非只读 README。完整路径、Git blob 和 Notebook 执行计数见 [review_inventory.json](sources/review_inventory.json)。旧记录只作为历史证据，本次验证结果来自统一实现的实际运行。
+The review compared implementation code, notebook cells and stored outputs, tests, and validation files at the fixed commits below. It did not rely solely on READMEs. [review_inventory.json](sources/review_inventory.json) records paths, Git blobs, and notebook execution counts. Stored results are historical evidence; validation of the unified implementation comes from its actual execution.
 
-| 分支 / commit | 实际实现与主要差异 | 整合选择及原因 |
+| Branch / commit | Actual implementation and main differences | Integration choice and reason |
 |---|---|---|
-| Evelyn-Workbook / bf5e61121c5bf8a0453b900e72ad2c5e0a8c4eee | clean_data.py 保留八家公司；固定上游 revision 和文件 SHA，严格拒绝空值/重复 ID/重复公司日期；财报 html.unescape + strip；验证数值、未修改字段、导出往返；Notebook 29/29 代码单元有执行记录，分析阶段才筛七巨头。代码写定的三个 SHA 与本地文件不同；源 manifest 没有随分支提交。 | 采用严格哈希核对、精确保留字段、段落保留和导出往返验证；正式输出改为七巨头。无法证明另一组 SHA 与本地快照内容相同，不能把其固定 revision 安到本地文件上，也不把“所有空值拒绝”当通用规则。 |
-| Jim-Work / 8e466e2f916b8f54e5382d29d7debf01c3020ac3 | cleaning_jim.py 是 Notebook 顺序代码，导入即执行；筛七巨头，保留价格数值、解码财报，清洗价格与 prices_analysis 分开；adj_close.pct_change(fill_method=None)；metrics 首尾用 first/last，绑定完整区间；Notebook 29/30 代码单元有执行记录。record_checks.csv 提供五记录核对。 | 采用清洗/分析分离与禁止隐式填充；改为可导入模块、显式日期范围；首尾取真实区间边界观测，避免 first/last 跳过缺失端点。 |
-| Olivia-work / 5cd1f54243711bb73b73775d86c8e472167685c9 | clean_data.py 保留八家公司、标记重复和异常；clean_text 将空值变空串、替换标点和损坏字符、re.sub(r'\s+', ' ', text) 折叠段落；分析混入清洗；事件先按日聚合但 merge 没有 validate。cleaning.ipynb 15 个代码单元均未执行；探索 Notebook 7/7 有执行记录；清单 Notebook 只有说明文字。 | 采用事件先聚合及列级审计思路；保留真正缺失、原标点和段落；显式关系验证，不把未执行 Notebook 当通过证据。 |
-| Peter-work / fb782fe53d42951551832940c714897592d71ef5 | 函数拆分清晰；三表筛七巨头；财报解码；adj_close 收益、前 20 次观测量比、12% 大幅变动；新闻短文/占位/显式未来日期标记；下一交易日映射、many_to_one 验证。Notebook 26/26 有执行记录；validation_report.md、reproduce_check_peter.py、reproducibility_peter.md 有全量核对记录。本地三文件 SHA 前缀与其复现记录一致。 | 采用函数结构、保留可疑记录和启发式标记。移出清洗中的收益与量比；不采用“下一交易日就无前视”的断言；不把短风险文本自动定为无实质信息。 |
-| Zack-Work / b4cb2aa5450ee145fb7787e44f6139492aefc679 | 一大函数实现；原始 SHA、_source_row、完全重复与逻辑键分别统计、价格冲突隔离、事件聚合、行数/成交量对账、Decimal 收益复核；数字异常转缺失；大收益阈值 30%；财报未 HTML 解码。Notebook 调同一脚本，18/18 有执行记录，存有复跑通过输出。 | 采用来源行、独立对账、连接验证、Decimal 复核；拆分模块并补 HTML 解码。价格异常值原样保留并标记，分析按字段有效性计算，避免静默改写原测量值。 |
-| cleaning-nicole / eb3dc4a93d6c3e40d0d69205f862030aeb27581f | clean_data.py 筛七巨头、符号日期标准化、价格有效性检查；用 close.pct_change()、close 全区间归一化；volatility_30d.std(ddof=1).fillna(0.0)；财报仅 strip、不解码；没有 Notebook。verification_evidence.md 宣称复现，不能替代本次执行；决策文档说丢弃非 10-K/Q，但代码遇到非预期类型抛错。 | 采用范围控制和类型检查思路；明确改为 adj_close、fill_method=None、无法估计波动率保持缺失；财报 HTML 解码。异常表单保留并标记，避免文档与代码不一致。 |
+| Evelyn-Workbook / bf5e61121c5bf8a0453b900e72ad2c5e0a8c4eee | `clean_data.py` retains eight companies, pins an upstream revision and file hashes, and strictly rejects nulls, duplicate IDs, and duplicate company/date keys. It applies `html.unescape` and `strip` to filings and validates numeric fields, unchanged columns, and export round trips. All 29 notebook code cells have execution records; the seven-stock filter is applied at the analysis stage. Its three hardcoded hashes differ from the local files, and its source manifest is not committed. | Adopt strict hash checking, exact field preservation, paragraph preservation, and export round trips. Restrict formal outputs to seven stocks. The other hashes have not been shown to identify equivalent content, so their upstream revision cannot be assigned to this snapshot. Rejecting every null is not adopted as a general rule. |
+| Jim-Work / 8e466e2f916b8f54e5382d29d7debf01c3020ac3 | `cleaning_jim.py` is sequential notebook code that executes on import. It filters to seven stocks, preserves price values, decodes filings, and separates cleaned prices from `prices_analysis`. Returns use `adj_close.pct_change(fill_method=None)`. Metrics use `first`/`last` over the full interval. The notebook has execution records for 29 of 30 code cells; `record_checks.csv` contains five record checks. | Adopt cleaning/analysis separation and explicit disabling of implicit filling. Provide importable functions with explicit date ranges. Use the actual first and last interval observations so missing endpoints are not silently skipped. |
+| Olivia-work / 5cd1f54243711bb73b73775d86c8e472167685c9 | `clean_data.py` retains eight companies and flags duplicates and anomalies. `clean_text` turns nulls into empty strings, replaces punctuation and damaged characters, and collapses paragraphs with `re.sub(r'\s+', ' ', text)`. Analysis is mixed into cleaning. Events are aggregated by date, but merges omit `validate`. None of the 15 code cells in `cleaning.ipynb` have execution records; all seven exploration notebook cells do. The checklist notebook contains explanatory text only. | Adopt event aggregation before joins and column-level auditing. Preserve genuine missingness, punctuation, and paragraphs. Explicitly validate relationships; unexecuted notebook cells are not passing evidence. |
+| Peter-work / fb782fe53d42951551832940c714897592d71ef5 | Clear function boundaries; all three tables are filtered to seven stocks. The implementation decodes filings and calculates adjusted-close returns, volume ratios against the preceding 20 observations, and 12% move flags. News flags cover short/placeholder text and explicit future dates. It maps to later trading sessions and validates `many_to_one` joins. All 26 notebook code cells have execution records. `validation_report.md`, `reproduce_check_peter.py`, and `reproducibility_peter.md` contain full-data checks. Local file hash prefixes match its reproducibility record. | Adopt the function structure, retention of suspicious records, and review heuristics. Move returns and volume ratios out of cleaning. Reject the claim that next-session mapping establishes absence of look-ahead. Short risk text is not automatically classified as lacking substantive information. |
+| Zack-Work / b4cb2aa5450ee145fb7787e44f6139492aefc679 | A large function implements source hashes, `_source_row`, separate exact-duplicate and logical-key counts, price-conflict quarantine, event aggregation, row/volume reconciliation, and Decimal return verification. Invalid numbers become missing; the large-return threshold is 30%. Filings are not HTML-decoded. The notebook calls the same script; all 18 code cells have execution records, including stored rerun success output. | Adopt source positions, independent reconciliation, relationship validation, and Decimal checks. Split modules and add HTML decoding. Retain and flag original anomalous numeric values; analysis uses valid fields rather than silently rewriting measurements. |
+| cleaning-nicole / eb3dc4a93d6c3e40d0d69205f862030aeb27581f | `clean_data.py` filters to seven stocks, standardizes symbols/dates, and checks price validity. It uses `close.pct_change()`, full-interval close normalization, and `volatility_30d.std(ddof=1).fillna(0.0)`. Filing text is stripped but not HTML-decoded. There is no notebook. `verification_evidence.md` reports reproducibility, which does not replace a new run. The decision document says non-10-K/Q forms are discarded, but the code raises an error for unexpected forms. | Adopt scope and type checks. Use `adj_close` and `fill_method=None`, leave unestimable volatility missing, and HTML-decode filings. Retain and flag unexpected forms; keep documentation consistent with implementation. |
 
-本次没有重跑六个历史工作流；上表的旧运行记录不代表它们在当前依赖/快照下已重新通过。统一版测试和复现报告只覆盖本次实现。
+The six historical workflows were not rerun. Their stored execution records do not establish that they pass with the current dependencies and snapshot. The new tests and reproducibility report cover the unified implementation only.
 
-## 来源快照与文件完整性
+## Source snapshot and integrity
 
-本地完整来源为 data/{prices,news,filings}.parquet，分别 2,656 / 3,888 / 73 行。它们与 Zack 本地清单完整 SHA 一致，与 Peter 提交的 16 位 SHA 前缀一致；sources/raw/ 仅供本地运行并被 Git 忽略，原目录不改动。按仓库所有者后续要求，当前版本不再跟踪三份原始文件，仅保留来源清单、SHA、完整清洗输出和审计材料。克隆后需另行取得符合 SHA 的完整快照，不能宣称仅克隆仓库就能离线重跑。此前提交中的原始文件仍存在历史中，本次没有重写 Git 历史。
+The complete local source is `data/{prices,news,filings}.parquet`, containing 2,656 / 3,888 / 73 rows respectively. Its full hashes match Zack's local manifest, and its 16-character prefixes match Peter's submitted record. `sources/raw/` is for local execution only and is ignored by Git; the original directory is unchanged.
 
-| 表 | SHA256 |
+At the repository owner's subsequent request, the current version no longer tracks the three raw files. It retains source metadata, hashes, complete cleaned outputs, and audit evidence. A clone requires separately obtaining the full snapshot matching these hashes; cloning alone does not provide an offline rerun. Raw files remain in earlier commits; Git history was not rewritten.
+
+| Table | SHA256 |
 |---|---|
 | prices | 736c124db22e976dbf4ec1dd65e5a983497e5890e7999f7925b343dee5c965d5 |
 | news | 1fd109796eada02af37a15178cc150ec252e7c02bc440c3f76641eb8fab6da25 |
 | filings | 822a854865651e042c9d64288785efa0f2c0fecdec2a16016ff3c2e7a5601299 |
 
-准确版本为 team-local-sha256-v1；上游 revision 和实际下载日期未知。Evelyn 的 revision 52d3ecb97e490a2392717935402cde283e8fa36e 只属于其记录。2026-10-18 访问固定版本源 README 返回需认证，未取得可独立核对的源文件/许可说明。没有换用最新文件或小样本，没有阻塞本地同一快照复现；上游版本对应关系与再分发条件待确认。成员文档记载 CC BY 4.0，本次不把该记载冒充独立确认。
+The exact version is `team-local-sha256-v1`; the upstream revision and actual download date are unknown. Evelyn's recorded revision, `52d3ecb97e490a2392717935402cde283e8fa36e`, belongs to her provenance record only. On October 18, 2026, access to the fixed-revision source README required authentication; independently verifiable upstream files and license materials were not obtained. No latest-version files or small samples were substituted. Local same-snapshot reproduction was completed; the upstream correspondence and redistribution terms remain unresolved. Individual documentation reports CC BY 4.0, which is not presented here as independent confirmation.
 
-## 统一规则、理由与状态
+## Unified rules, reasons, and status
 
-| 规则 | 采用方法 | 来源与理由 | 状态 |
+| Rule | Implementation | Source and reason | Status |
 |---|---|---|---|
-| 范围 | 三张正式表仅 AAPL/AMZN/GOOGL/META/MSFT/NVDA/TSLA；每条 ADBE 保留在 excluded_*，理由 scope_ADBE。ADBE 排除优先于重复排除，独立重复计数仍保留。 | 本次要求；Peter/Jim/Nicole/Zack。范围排除不等于坏数据。 | 用户要求 |
-| 来源 | 原字节拷贝、逐文件 SHA、manifest、分支 commit；输入哈希不符即失败。原始与输出目录不能互为祖先。 | Evelyn/Zack；防止不知情更换快照或覆盖原文件。 | 用户要求；固定本地版本方式为建议 |
-| 类型 | id 为不做数值运算的 string，symbol/form trim + upper，保留缺失；date 严格 date-only ISO -> 无时区 datetime64[ns]；价格 float64，量 Int64；按 symbol/date/id/来源行稳定排序。非空数字转换失败或小数成交量抛错。 | Peter 结构、Evelyn 严格性、Zack 来源行；避免隐式时区转换、日期截断、字符串 'nan' 和成交量精度损失。 | 建议 |
-| 一行含义/主键 | 每表 id 唯一；价格 symbol/date 唯一。新闻是日摘要记录；财报是带节选的文档记录；新闻 symbol/date 与财报 symbol/date/form 是业务键候选，多事件可以共享日期。不同表的 id 不连接。 | 六分支比较后采用；ID 属于各自表。 | 建议 |
-| 完全重复 | 全部原始字段一致才算；保留来源位置最早行，其余存排除表并记理由。排除表亦应用同一格式规范，原始全文可按来源行回查。 | Zack，Evelyn/Peter 的重复统计；归一化后的相似文本不据此删除。 | 建议；本快照 0 条 |
-| 主键冲突 | 完全重复处理后，非同一记录重复 id 整组隔离；价格重复 symbol/date 整组隔离，不凭位置取胜。新闻/财报不同 id 的同日记录保留、标记、连接前聚合；缺失/非法键及未知 symbol 隔离。 | Zack 的隔离原则 + 独立审查；避免任意选择和多对多放大。 | 建议；本快照 0 条 |
-| 文本 | 新闻只 strip；财报逐字段 html.unescape 一次 + strip；保留标点、段落、内部空白和缺失，不替换缺失内容。记录改动来源行和前后文本 SHA。 | Peter/Evelyn/Jim；拒绝 Olivia 折叠段落以及字符串化缺失。 | 用户要求 |
-| 价格异常 | 保留全部数值；标记非有限、缺失/非正价格、负成交量、OHLC 不一致、零量、观测间隔 >4 日；不要求 adj_close 在未调整 OHLC 范围内。 | Evelyn 原值验证、Zack 审计；异常不自动视为错误。 | 保留为用户要求；具体标记规则为建议 |
-| 大幅变化 | 连续观测 adj_close 收益绝对值 >12% 标记，保留。日期间隔不假定为一个交易日。 | Peter；比 Evelyn 的20%、Zack的30%更敏感，影响筛查不影响正式保留。 | 建议，阈值待确认 |
-| 新闻可疑性 | <200 字符，或 <1000 字符且命中占位短语；显式未来日期；以引号结尾的疑似截断；全部日期新闻 flag_timing_unverified=True。 | Peter 启发式与 Evelyn 手工案例；标记不证明缺陷，未来日期提取不能穷尽泄漏。 | 建议，需人工复核 |
-| 财报可疑性 | 短风险文本 <1000 字符、与上一文档相同的风险文本、空文段或非10-K/Q表单，全部保留并标记。 | Peter/Evelyn；交叉引用/重复披露可能合理。 | 建议 |
-| 缺失 | 保持缺失，不填充行情、新闻或财报；收益无前值/无效端点即缺失。波动率需至少两个有效收益，ddof=1。 | 用户要求，Jim/Evelyn/Zack；修正 Nicole fillna(0)。 | 用户要求；ddof 约定为建议 |
-| 分析分离 | 正式价格表无 daily_return/normalized_price/volatility；临时收益仅用于异常标记。analysis.interval_metrics 接受闭区间日期，区间内重设首观测基数100、计算区间收益/样本日波动率/有效量均值。 | Jim 分离思路；修正完整快照预计算导致区间错误。 | 用户要求；基数100、区间不跨左边界为建议 |
-| 连接 | 三表独立；只做描述性同日事件聚合计数连接验证，one_to_one；反向匹配 many_to_one，存未匹配事件键。价格行数及所有原字段精确不变。连接面板不作为第四张正式表。 | Zack/Olivia 聚合、Peter 关系声明。无匹配不等于缺测错误。 | 用户要求 |
-| 时间可用性 | 不生成 reaction_date 或“无泄漏”的下一交易日映射；只有日期无法证明何时可获得摘要或其中信息；同日连接亦不能用于预测可用性证明。 | 用户要求，Evelyn 限制；纠正 Peter 报告结论。 | 用户要求 |
-| 检查目标 | 2324/3402/63 仅对照结果，不在代码中强制删增匹配；固定的是原始字节哈希，而非期望清洗数量。 | 用户要求。 | 用户要求 |
+| Scope | Formal tables contain only AAPL, AMZN, GOOGL, META, MSFT, NVDA, and TSLA. Every ADBE row is retained in `excluded_*` with reason `scope_ADBE`. ADBE scope exclusion takes precedence over duplicate exclusion; independent duplicate counts are still reported. | User requirement; Peter/Jim/Nicole/Zack. Out-of-scope data is not necessarily bad data. | Required by user |
+| Provenance | Preserve original bytes locally, record file hashes, a manifest, and branch commits, and fail on input hash mismatch. Raw and output directories may not contain one another. | Evelyn/Zack; prevent unnoticed snapshot replacement or source overwriting. | Preservation required; local version identity is a proposal |
+| Types | IDs are strings, not quantities. Trim/uppercase symbol and form labels while preserving missingness. Parse strictly date-only ISO values as timezone-naive `datetime64[ns]`; prices are float64 and volume is Int64. Sort stably by symbol/date/ID/source position. Nonmissing numeric conversion failures and fractional volume raise errors. | Peter's structure, Evelyn's strictness, and Zack's source positions; avoid implicit timezone changes, date truncation, literal `'nan'` strings, and volume precision loss. | Proposed |
+| Observation and keys | Each table has unique IDs; prices also have unique symbol/date keys. News rows are daily digest records and filings are document records with excerpts. Symbol/date for news and symbol/date/form for filings are candidate business keys; several events may share a date. IDs are not joined across tables. | Independent comparison of all six versions; IDs belong to their own tables. | Proposed |
+| Exact duplicates | Compare all original fields. Keep the earliest source position and record extra rows with reasons in exclusions. Exclusions receive the same formatting normalization; original text remains recoverable by source position. | Zack and Evelyn/Peter's duplicate profiling; similar normalized text alone does not justify deletion. | Proposed; zero in this snapshot |
+| Key conflicts | After exact deduplication, quarantine all rows in nonidentical repeated-ID groups and all conflicting price symbol/date groups. Do not pick a winner by position. Retain/flag distinct same-day news and filings with different IDs; aggregate before joins. Quarantine missing/invalid keys and unknown symbols. | Zack's quarantine principle plus independent review; prevent arbitrary selection and many-to-many multiplication. | Proposed; zero conflicts in this snapshot |
+| Text | News uses `strip` only. Filing fields use one `html.unescape` followed by `strip`. Preserve punctuation, paragraphs, internal whitespace, and missingness; do not replace missing content. Record source positions and before/after text hashes. | Peter/Evelyn/Jim; avoid Olivia's paragraph collapse and conversion of missingness into text. | Required by user |
+| Numeric anomalies | Retain numeric values. Flag nonfinite/missing/nonpositive prices, negative volume, OHLC inconsistencies, zero volume, and observed gaps over four calendar days. Do not require adjusted close to fall inside unadjusted OHLC ranges. | Evelyn's original-value checks and Zack's audit approach; anomalies do not automatically prove errors. | Retention required; specific flags proposed |
+| Large moves | Flag absolute adjusted-close returns above 12% across consecutive observed rows; retain records. An observation gap is not assumed to be one trading day. | Peter; more sensitive than Evelyn's 20% and Zack's 30%. This affects screening, not retention. | Proposed; threshold pending confirmation |
+| Suspicious news | Flag text shorter than 200 characters, or shorter than 1,000 with placeholder phrases; explicit future-date mentions; and possible truncation indicated by a final quotation mark. Set `flag_timing_unverified=True` for all date-only news. | Peter's heuristics and Evelyn's manual cases; flags do not prove defects, and explicit-date extraction cannot detect every leakage risk. | Proposed; manual review needed |
+| Suspicious filings | Retain/flag risk text shorter than 1,000 characters, text matching the previous filing's risk section, empty excerpts, and forms outside 10-K/Q. | Peter/Evelyn; cross-references and repeated disclosures may be legitimate. | Proposed |
+| Missingness | Do not impute prices, news, or filings. Returns without a previous observation or valid endpoints remain missing. Volatility requires at least two valid returns and uses `ddof=1`. | User requirement and Jim/Evelyn/Zack; correct Nicole's `fillna(0)`. | Missingness required; ddof convention proposed |
+| Analysis separation | Formal prices have no daily return, normalized price, or volatility columns. Temporary returns only support quality flags. `analysis.interval_metrics` accepts an inclusive date interval and computes base-100 normalization from its first observation, interval returns, sample daily volatility, and valid-volume averages. | Jim's separation; avoid incorrect interval results from full-snapshot precomputation. | Separation required; base 100 and no crossing of the left boundary proposed |
+| Joins | Keep tables independent. Validate only descriptive same-date joins of aggregated event counts using `one_to_one`; reverse event matching uses `many_to_one`. Save unmatched event keys. Preserve the price row count and all original price fields exactly. Do not publish the temporary panel as a fourth formal table. | Zack/Olivia's aggregation and Peter's relationship declarations. An unmatched event does not automatically imply a data error. | Required by user |
+| Information availability | Do not generate `reaction_date` or claim that a next-session mapping eliminates leakage. Date-only records do not establish when a digest or its information was available. Same-date joins likewise do not establish predictive availability. | User requirement and Evelyn's limitations; correct Peter's reported conclusion. | Required by user |
+| Comparison targets | Treat 2,324 / 3,402 / 63 as comparison targets only. Do not force counts by adding/removing rows. Pin original byte hashes, not expected cleaned counts. | User requirement. | Required by user |
 
-HTML 解码有意只做一次，不递归解码字面转义内容；清洗 API 接受原始表并拒绝带来源/标记列的正式输出。可复现性指从相同原始快照重新执行，不是把输出不断再清洗。
+HTML decoding intentionally occurs once; literal escaped content is not decoded recursively. The cleaning API accepts raw tables and rejects formal outputs containing source/flag columns. Reproducibility means rerunning from the same raw snapshot, not repeatedly cleaning an already cleaned output.
 
-## 本次实际核对
+## Executed verification
 
-实际执行日志见 [verification.md](artifacts/verification.md)；全量机器报告见 [validation_report.json](artifacts/validation_report.json)。逐字段精确对比所有保留价格数值与所有叙述字段规则结果；每条可算收益用 Decimal 独立比值复核；导出后重新读取三正式表和三排除表，精确比较值与类型。两个新 Python 进程从同一原始快照执行，比较所有生成文件 SHA；不是只重复内存调用。历史 Notebook 未执行的检查未计为本次通过。
+See [verification.md](artifacts/verification.md) for the execution log and [validation_report.json](artifacts/validation_report.json) for the full machine-readable report. All retained price values were compared exactly with their original source positions, and all narrative fields were compared with their specified transformation. Every computable return was checked against an independent Decimal ratio. All three formal and three exclusion Parquet files were reloaded and compared exactly for values and types.
 
-## 尚需团队确认
+Two fresh Python processes executed from the same original snapshot and compared every generated file's SHA256; this was not merely a repeated in-memory call. Unexecuted historical notebook checks were not counted as passing checks.
 
-1. 12% 价格阈值、短文/占位/截断规则和财报短风险阈值；保留标记可先用，不应自动排除出研究。
-2. 非同一记录的重复 ID/价格业务键整组隔离，以及事件同日不同 ID 保留的治理规则；本快照没有此类案例，当前证据来自风险测试。
-3. 区间首观测基数100、收益不跨区间左边界、样本日波动率 ddof=1；本次不设滚动窗口和年化因子。
-4. 向拥有源站权限的成员核实来源 revision、日期字段含义、复权方法和再分发许可；保留必要归属与许可材料。源站当前要求认证；这里没有把成员记载的 CC BY 4.0 当独立核验。
-5. 交易所日历完整性、新闻事实与摘要生成时间尚未验证。15 个未观测工作日只列为诊断，不能宣布全部为合法交易所休市；下一交易日映射也不能解决日期新闻信息可用性。
+## Decisions still requiring team confirmation
+
+1. The 12% price threshold, short/placeholder/truncated-news heuristics, and short-risk threshold. Flags may support review but should not automatically remove records from research.
+2. Quarantining whole nonidentical repeated-ID or conflicting-price-key groups, and retaining distinct same-day events. This snapshot has no such conflicts; the evidence for these policies comes from risk tests.
+3. Base-100 normalization at the interval's first actual observation, returns that do not cross its left boundary, and sample daily volatility with `ddof=1`. No rolling window or annualization factor is selected in this delivery.
+4. A member with source access should verify the upstream revision, date semantics, price adjustment methodology, and redistribution terms, retaining attribution and license materials. Authentication is currently required; individual statements of CC BY 4.0 are not treated as independent verification.
+5. Exchange-calendar completeness, news factual accuracy, and digest generation times are unverified. The 15 unobserved weekdays are diagnostics, not certified exchange holidays. Mapping date-only news to a later session does not establish information availability.
