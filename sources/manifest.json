@@ -1,0 +1,27 @@
+{
+  "dataset": "TheFinAI/Herculean",
+  "source_url": "https://huggingface.co/datasets/TheFinAI/Herculean",
+  "snapshot_version": "team-local-sha256-v1",
+  "upstream_revision": null,
+  "provenance": "Existing local data/*.parquet; hashes agree with Zack local manifest and Peter reproducibility prefixes. Original download date unknown.",
+  "upstream_verification": "2026-10-18 fixed-revision README request returned authentication-required; no upstream revision or license independently verified.",
+  "license_note": "Individual branch documentation reports CC BY 4.0; independent confirmation outstanding. Retain attribution; team must confirm redistribution terms before publication.",
+  "tables": {
+    "prices": {
+      "path": "sources/raw/prices.parquet",
+      "sha256": "736c124db22e976dbf4ec1dd65e5a983497e5890e7999f7925b343dee5c965d5",
+      "bytes": 67349
+    },
+    "news": {
+      "path": "sources/raw/news.parquet",
+      "sha256": "1fd109796eada02af37a15178cc150ec252e7c02bc440c3f76641eb8fab6da25",
+      "bytes": 5216446
+    },
+    "filings": {
+      "path": "sources/raw/filings.parquet",
+      "sha256": "822a854865651e042c9d64288785efa0f2c0fecdec2a16016ff3c2e7a5601299",
+      "bytes": 600603
+    }
+  },
+  "storage": "Raw files are local-only in ignored sources/raw/ and are not tracked in Git. Obtain the complete snapshot separately and verify these hashes."
+}

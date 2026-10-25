@@ -1,0 +1,397 @@
+{
+  "tables": {
+    "prices": {
+      "raw_rows": 2656,
+      "cleaned_rows": 2324,
+      "excluded_rows": 332,
+      "exact_duplicate_extra_rows": 0,
+      "raw_repeated_id_rows": 0,
+      "conflicting_id_rows": 0,
+      "repeated_business_key_rows": 0,
+      "dispositions": {
+        "scope_ADBE": 332
+      },
+      "missing_before": {
+        "id": 0,
+        "symbol": 0,
+        "date": 0,
+        "open": 0,
+        "high": 0,
+        "low": 0,
+        "close": 0,
+        "adj_close": 0,
+        "volume": 0
+      },
+      "missing_after": {
+        "id": 0,
+        "symbol": 0,
+        "date": 0,
+        "open": 0,
+        "high": 0,
+        "low": 0,
+        "close": 0,
+        "adj_close": 0,
+        "volume": 0,
+        "_source_row": 0,
+        "flag_repeated_business_key": 0,
+        "flag_invalid_numeric": 0,
+        "flag_ohlc": 0,
+        "flag_zero_volume": 0,
+        "flag_large_move": 0,
+        "flag_gap_gt4_calendar_days": 0
+      },
+      "conversions": [
+        {
+          "column": "id",
+          "before_dtype": "int32",
+          "after_dtype": "string",
+          "conversion_failures": 0
+        },
+        {
+          "column": "symbol",
+          "before_dtype": "str",
+          "after_dtype": "string",
+          "conversion_failures": 0
+        },
+        {
+          "column": "date",
+          "before_dtype": "object",
+          "after_dtype": "datetime64[ns]",
+          "conversion_failures": 0
+        },
+        {
+          "column": "open",
+          "before_dtype": "float64",
+          "after_dtype": "float64",
+          "conversion_failures": 0
+        },
+        {
+          "column": "high",
+          "before_dtype": "float64",
+          "after_dtype": "float64",
+          "conversion_failures": 0
+        },
+        {
+          "column": "low",
+          "before_dtype": "float64",
+          "after_dtype": "float64",
+          "conversion_failures": 0
+        },
+        {
+          "column": "close",
+          "before_dtype": "float64",
+          "after_dtype": "float64",
+          "conversion_failures": 0
+        },
+        {
+          "column": "adj_close",
+          "before_dtype": "float64",
+          "after_dtype": "float64",
+          "conversion_failures": 0
+        },
+        {
+          "column": "volume",
+          "before_dtype": "int64",
+          "after_dtype": "Int64",
+          "conversion_failures": 0
+        }
+      ],
+      "flags": {
+        "flag_repeated_business_key": 0,
+        "flag_invalid_numeric": 0,
+        "flag_ohlc": 0,
+        "flag_zero_volume": 0,
+        "flag_large_move": 7,
+        "flag_gap_gt4_calendar_days": 0
+      }
+    },
+    "news": {
+      "raw_rows": 3888,
+      "cleaned_rows": 3402,
+      "excluded_rows": 486,
+      "exact_duplicate_extra_rows": 0,
+      "raw_repeated_id_rows": 0,
+      "conflicting_id_rows": 0,
+      "repeated_business_key_rows": 0,
+      "dispositions": {
+        "scope_ADBE": 486
+      },
+      "missing_before": {
+        "id": 0,
+        "symbol": 0,
+        "date": 0,
+        "highlights": 0
+      },
+      "missing_after": {
+        "id": 0,
+        "symbol": 0,
+        "date": 0,
+        "highlights": 0,
+        "_source_row": 0,
+        "flag_repeated_business_key": 0,
+        "flag_empty_text": 0,
+        "flag_placeholder": 0,
+        "flag_future_date_mention": 0,
+        "flag_apparent_truncation": 0,
+        "flag_timing_unverified": 0
+      },
+      "conversions": [
+        {
+          "column": "id",
+          "before_dtype": "int32",
+          "after_dtype": "string",
+          "conversion_failures": 0
+        },
+        {
+          "column": "symbol",
+          "before_dtype": "str",
+          "after_dtype": "string",
+          "conversion_failures": 0
+        },
+        {
+          "column": "date",
+          "before_dtype": "object",
+          "after_dtype": "datetime64[ns]",
+          "conversion_failures": 0
+        },
+        {
+          "column": "highlights",
+          "before_dtype": "str",
+          "after_dtype": "string",
+          "conversion_failures": 0
+        }
+      ],
+      "flags": {
+        "flag_repeated_business_key": 0,
+        "flag_empty_text": 0,
+        "flag_placeholder": 7,
+        "flag_future_date_mention": 0,
+        "flag_apparent_truncation": 1,
+        "flag_timing_unverified": 3402
+      }
+    },
+    "filings": {
+      "raw_rows": 73,
+      "cleaned_rows": 63,
+      "excluded_rows": 10,
+      "exact_duplicate_extra_rows": 0,
+      "raw_repeated_id_rows": 0,
+      "conflicting_id_rows": 0,
+      "repeated_business_key_rows": 0,
+      "dispositions": {
+        "scope_ADBE": 10
+      },
+      "missing_before": {
+        "id": 0,
+        "symbol": 0,
+        "date": 0,
+        "document_type": 0,
+        "mda_content": 0,
+        "risk_content": 0
+      },
+      "missing_after": {
+        "id": 0,
+        "symbol": 0,
+        "date": 0,
+        "document_type": 0,
+        "mda_content": 0,
+        "risk_content": 0,
+        "_source_row": 0,
+        "flag_repeated_business_key": 0,
+        "flag_empty_mda_content": 0,
+        "flag_empty_risk_content": 0,
+        "flag_unexpected_form": 0,
+        "flag_short_risk_text": 0,
+        "flag_repeated_previous_risk": 0
+      },
+      "conversions": [
+        {
+          "column": "id",
+          "before_dtype": "int32",
+          "after_dtype": "string",
+          "conversion_failures": 0
+        },
+        {
+          "column": "symbol",
+          "before_dtype": "str",
+          "after_dtype": "string",
+          "conversion_failures": 0
+        },
+        {
+          "column": "date",
+          "before_dtype": "object",
+          "after_dtype": "datetime64[ns]",
+          "conversion_failures": 0
+        },
+        {
+          "column": "document_type",
+          "before_dtype": "str",
+          "after_dtype": "string",
+          "conversion_failures": 0
+        },
+        {
+          "column": "mda_content",
+          "before_dtype": "str",
+          "after_dtype": "string",
+          "conversion_failures": 0
+        },
+        {
+          "column": "risk_content",
+          "before_dtype": "str",
+          "after_dtype": "string",
+          "conversion_failures": 0
+        }
+      ],
+      "flags": {
+        "flag_repeated_business_key": 0,
+        "flag_empty_mda_content": 0,
+        "flag_empty_risk_content": 0,
+        "flag_unexpected_form": 0,
+        "flag_short_risk_text": 9,
+        "flag_repeated_previous_risk": 7
+      }
+    }
+  },
+  "source": {
+    "dataset": "TheFinAI/Herculean",
+    "source_url": "https://huggingface.co/datasets/TheFinAI/Herculean",
+    "snapshot_version": "team-local-sha256-v1",
+    "upstream_revision": null,
+    "provenance": "Existing local data/*.parquet; hashes agree with Zack local manifest and Peter reproducibility prefixes. Original download date unknown.",
+    "upstream_verification": "2026-10-18 fixed-revision README request returned authentication-required; no upstream revision or license independently verified.",
+    "license_note": "Individual branch documentation reports CC BY 4.0; independent confirmation outstanding. Retain attribution; team must confirm redistribution terms before publication.",
+    "tables": {
+      "prices": {
+        "path": "sources/raw/prices.parquet",
+        "sha256": "736c124db22e976dbf4ec1dd65e5a983497e5890e7999f7925b343dee5c965d5",
+        "bytes": 67349
+      },
+      "news": {
+        "path": "sources/raw/news.parquet",
+        "sha256": "1fd109796eada02af37a15178cc150ec252e7c02bc440c3f76641eb8fab6da25",
+        "bytes": 5216446
+      },
+      "filings": {
+        "path": "sources/raw/filings.parquet",
+        "sha256": "822a854865651e042c9d64288785efa0f2c0fecdec2a16016ff3c2e7a5601299",
+        "bytes": 600603
+      }
+    },
+    "storage": "Raw files are local-only in ignored sources/raw/ and are not tracked in Git. Obtain the complete snapshot separately and verify these hashes."
+  },
+  "source_sha256": {
+    "prices": "736c124db22e976dbf4ec1dd65e5a983497e5890e7999f7925b343dee5c965d5",
+    "news": "1fd109796eada02af37a15178cc150ec252e7c02bc440c3f76641eb8fab6da25",
+    "filings": "822a854865651e042c9d64288785efa0f2c0fecdec2a16016ff3c2e7a5601299"
+  },
+  "source_manifest_sha256": "f494290ac98ff030498295b1297be57a0c66c3ad03339e1db287c3cf6b1d027d",
+  "joins": {
+    "news": {
+      "event_rows": 3402,
+      "aggregated_keys": 3402,
+      "unmatched_event_rows": 1078,
+      "price_rows_without_event": 0,
+      "price_rows_before": 2324,
+      "price_rows_after": 2324
+    },
+    "filings": {
+      "event_rows": 63,
+      "aggregated_keys": 63,
+      "unmatched_event_rows": 28,
+      "price_rows_without_event": 2289,
+      "price_rows_before": 2324,
+      "price_rows_after": 2324
+    }
+  },
+  "volume": {
+    "raw": 159456800900,
+    "cleaned": 158002379300,
+    "excluded": 1454421600
+  },
+  "independently_checked_returns": 2317,
+  "missing_returns": 7,
+  "numeric_ranges": {
+    "open": {
+      "min": 87.45999908447266,
+      "max": 791.1500244140625
+    },
+    "high": {
+      "min": 99.44000244140624,
+      "max": 796.25
+    },
+    "low": {
+      "min": 86.62000274658203,
+      "max": 780.8200073242188
+    },
+    "close": {
+      "min": 94.30999755859376,
+      "max": 790.0
+    },
+    "adj_close": {
+      "min": 94.28778076171876,
+      "max": 788.1489868164062
+    },
+    "volume": {
+      "min": 4726100.0,
+      "max": 818830900.0
+    }
+  },
+  "weekdays_without_observed_prices": [
+    "2024-12-25",
+    "2025-01-01",
+    "2025-01-09",
+    "2025-01-20",
+    "2025-02-17",
+    "2025-04-18",
+    "2025-05-26",
+    "2025-06-19",
+    "2025-07-04",
+    "2025-09-01",
+    "2025-11-27",
+    "2025-12-25",
+    "2026-01-01",
+    "2026-01-19",
+    "2026-02-16"
+  ],
+  "filings_before_first_price": 28,
+  "preserved_price_numeric_cells": 13944,
+  "text_changed_cells": 146,
+  "retained_text_changed_cells": 126,
+  "environment": {
+    "python": "3.13.15",
+    "pandas": "3.0.1",
+    "numpy": "2.3.5",
+    "pyarrow": "25.0.0"
+  },
+  "executed_checks": [
+    "pinned source SHA256",
+    "primary keys",
+    "row reconciliation",
+    "volume reconciliation",
+    "all retained price numeric values exact",
+    "all retained narrative cells vs rule",
+    "join cardinality and all price fields unchanged",
+    "Parquet exact round trips",
+    "all computable adjusted returns vs independent Decimal ratios",
+    "raw SHA256 unchanged after run"
+  ],
+  "not_verified": [
+    "upstream revision of local snapshot",
+    "exchange calendar completeness",
+    "news factual correctness/publication timestamps",
+    "price adjustment methodology",
+    "dataset redistribution license independently confirmed"
+  ],
+  "output_sha256": {
+    "coverage.csv": "07bbd316498efe7128af1692fa9e5e8944d5656002a7433fabcc85beca1b62e3",
+    "excluded_filings.parquet": "f96241e5a3c87982815658595cc423e22ce3a82cae22b9c1d440defb5cfd1d00",
+    "excluded_news.parquet": "a8da901939f3fc503fe118f32271384bf902880daf3be428d19e4cbf9a39bb64",
+    "excluded_prices.parquet": "9fd1f9a714d88c936e1c1a67c49e28bc09ee63f739715a7511c01fd4da2c5aed",
+    "filings_clean.parquet": "d56aa0d85cf96dc991f8e74bc06541479bc044c6652995cbfd3f81f582ab2a6c",
+    "news_clean.parquet": "94fc868bb681c810999d861e40e3cfb402473bc77141554003c6f362f027ba0d",
+    "prices_clean.parquet": "84a3c2c4eaab0977f98666cc431faafdf1eb39cbc20deff36579ab430060ae1e",
+    "text_changes.csv": "c8a5fbf2487e339a8bdc5cdaac016c42605ce11109059695cf198d6071c46c26",
+    "unmatched_filings.csv": "9d7077719abb5f5a9138e328ff8a8998bcc0ae308b93a011fe57b1b758cf6ec2",
+    "unmatched_news.csv": "ba651e937a7f4c738012a57c52c1b61395941056b3a49a58bdcc010399e73e80"
+  }
+}

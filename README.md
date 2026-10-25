@@ -1,157 +1,131 @@
-# Module 6: Herculean Data Cleaning and Verification
+# Magnificent Seven Data Cleaning
 
-This project cleans and validates the local Herculean prices, news, and filings tables for the Magnificent Seven: AAPL, AMZN, GOOGL, META, MSFT, NVDA, and TSLA. ADBE is excluded because it is outside the project scope.
+Prepare comparable prices, news digests, and filing excerpts for AAPL, AMZN, GOOGL, META, MSFT, NVDA, and TSLA. The intended user is a junior equity research analyst selecting 1–2 stocks for deeper research using price performance, volatility, trading volume, news, and filings. This repository provides cleaning, separate analysis functions, complete datasets, and validation evidence. It does not implement a dashboard.
 
-## Submission information
+The unified solution was merged through [PR #1](https://github.com/xunyangy-afk/Python-Group-Project/pull/1). [CLEANING_DECISIONS.md](CLEANING_DECISIONS.md) compares the six source branches and records adopted rules, reasons, and open questions. Rules without confirmed team agreement remain proposals.
 
-- **Student:** Zack Ye
-- **Individual branch:** `Zack-Work`
-- **Branch URL:** https://github.com/xunyangy-afk/Python-Group-Project/tree/Zack-Work
-- **Submitted analysis commit:** 255fb690ce1a3151166fcad64e353cff9c3cddb8
+## Run the complete workflow
 
-Use the same branch information and analysis commit ID in the individual PDF. The analysis commit identifies the code and results being reviewed; a later documentation-only commit may add that ID to this README.
+Use Python 3.13 from the repository root. Raw inputs are intentionally not stored in Git. Before running, place the complete `prices.parquet`, `news.parquet`, and `filings.parquet` snapshot in the ignored `sources/raw/` directory. Obtain the files from a team member holding this exact snapshot, or from an authorized source, and match all three SHA256 hashes in [sources/manifest.json](sources/manifest.json). Do not substitute samples or assume the latest upstream files are identical. Source access may require authentication; exact upstream revision remains unconfirmed.
 
-## Project vision and question
+After installing dependencies, `verify_cleaning.py` runs the risk tests, executes two full cleaning runs in fresh Python processes, and checks source preservation and output reproducibility.
 
-**Vision:** Build a financial intelligence dashboard integrating market prices, news digests, and filing excerpts for the Magnificent Seven.
+Windows PowerShell:
 
-**Business question:** How do observed daily stock returns differ between company-days with and without recorded filing events among the Magnificent Seven?
+```powershell
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+.venv\Scripts\python.exe verify_cleaning.py
+```
 
-The primary comparison is mean adjusted-close return on filing and non-filing days, with the number of nonmissing returns reported for each group. News coverage and trading volume provide additional context. All price days in the current snapshot have a news record, so this snapshot does not support a news-versus-no-news comparison.
+macOS/Linux:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python verify_cleaning.py
+```
+
+To run cleaning alone, use your environment's Python executable with:
+
+```bash
+python -m team_cleaning --raw-dir sources/raw --output-dir artifacts
+```
+
+Inputs must match the SHA256 hashes in `sources/manifest.json`. A new snapshot requires a reviewed manifest and fresh validation; do not bypass hash checks. Failures return a nonzero exit code. Old artifacts do not demonstrate that a failed run succeeded.
+
+The recorded environment is Python 3.13.15, pandas 3.0.1, numpy 2.3.5, and pyarrow 25.0.0. `requirements.txt` pins direct and transitive dependencies. The pipeline does not install packages or replace source data at runtime. Byte-for-byte reproducibility was verified in this recorded environment.
+
+## What is included in main
+
+| Location | Contents |
+|---|---|
+| `team_cleaning/pipeline.py` | Reusable cleaning, scope filtering, quality flags, exclusions, reconciliation, exports, and join validation |
+| `team_cleaning/analysis.py` | Adjusted-close returns and date-range-dependent normalization and interval metrics |
+| `team_cleaning/__main__.py` | Command-line entry point |
+| `tests/test_risks.py` | Eleven tests covering duplicates, conflicts, dates, missingness, text structure, numeric anomalies, calculations, joins, and source protection |
+| `verify_cleaning.py` | Test runner and two-process full-snapshot reproducibility check |
+| `sources/raw/` (local only; ignored) | Place the three complete source Parquet files here before running; these files are not included in Git |
+| `sources/manifest.json` | Snapshot identity, attribution notes, byte sizes, SHA256 hashes, and provenance limitations |
+| `sources/branch_revisions.json`, `sources/review_inventory.json` | Reviewed branch commits, file identities, and stored notebook execution inventory |
+| `artifacts/*_clean.parquet` | Three complete formal Magnificent Seven tables |
+| `artifacts/excluded_*.parquet` | Excluded ADBE records with source positions and reasons |
+| `artifacts/validation_report.json`, `.md` | Actual full-data checks, counts, ranges, flags, reconciliation, and join results |
+| `artifacts/verification.json`, `.md` | Executed test log and fresh-process reproducibility evidence |
+| `artifacts/coverage.csv`, `text_changes.csv`, `unmatched_*.csv` | Company/date coverage, text-change audit, and unmatched event keys |
+| `CLEANING_DECISIONS.md`, `PR_DESCRIPTION.md` | Integration decisions and the original PR description |
+| `requirements.txt`, `.gitignore`, `.gitattributes` | Pinned dependencies, local-file exclusions, and stable text/binary handling |
+
+Existing project notes were preserved. Individual notebooks, temporary review extracts, virtual environments, and the old local `data/` and `cleaning_outputs/` directories were not added by the integration.
 
 ## Data source and snapshot
 
-- **Dataset:** [TheFinAI/Herculean](https://huggingface.co/datasets/TheFinAI/Herculean).
-- **Attribution:** TheFinAI / Xueqing Peng, *Herculean* (2026).
-- **Dataset license:** CC BY 4.0, as stated on the dataset card.
-- **Inputs:** `data/prices.parquet`, `data/news.parquet`, and `data/filings.parquet`.
-- **Version identification:** Local snapshot identified by each file's SHA256 hash. The program does not assume an upstream revision from filenames.
+Source: [TheFinAI/Herculean](https://huggingface.co/datasets/TheFinAI/Herculean). Individual branch documentation attributes the dataset to TheFinAI / Xueqing Peng, *Herculean*. Raw inputs stay on the local filesystem in the ignored `sources/raw/` directory; the original `data/` files were not modified. Git stores the source manifest and hashes, not the raw files.
 
-The pipeline writes filenames, byte sizes, row counts, SHA256 hashes, and first-inspection timestamps to `cleaning_outputs/local_source_manifest.json`. An inspection timestamp is not a download date. Retain the actual source revision or download date in your submission records if known.
+The exact local version is `team-local-sha256-v1`. [sources/manifest.json](sources/manifest.json) records each file's full SHA256 and byte size. The hashes match Zack's local source manifest and the prefixes in Peter's reproducibility record.
 
-The program reads existing local files only. It does not download data or modify the original Parquet files. If the raw files are not included in the repository, obtain the three tables from the linked dataset and place them in `data/`. To reproduce this exact snapshot, compare their hashes with the submitted manifest; the latest upstream files may differ.
+**The upstream revision and original download date are unconfirmed.** Evelyn recorded different hashes and an upstream revision that cannot be assigned to these files. On October 18, 2026, a fixed-revision source README request required authentication. Individual documentation reports CC BY 4.0, but the upstream revision and redistribution terms were not independently confirmed. A member with source access should confirm the terms and retain the required attribution/license materials before public redistribution of derived data. Reproduction requires separately obtaining the complete local snapshot matching the manifest.
 
-## Project files
+## Complete formal datasets
 
-```text
-Python-Group-Project/
-├── data/
-│   ├── prices.parquet
-│   ├── news.parquet
-│   └── filings.parquet
-├── cleaning.py
-├── Herculean_Mag7_Module6.ipynb
-├── requirements.txt
-├── requirements-notebook.txt
-├── README.md
-└── cleaning_outputs/                 # Created when the pipeline runs
+| File | Rows | Observation and keys |
+|---|---:|---|
+| [prices_clean.parquet](artifacts/prices_clean.parquet) | 2,324 | One company/date price observation; unique table ID and `symbol,date` |
+| [news_clean.parquet](artifacts/news_clean.parquet) | 3,402 | One company/date news digest record; unique table ID; distinct same-day events are allowed |
+| [filings_clean.parquet](artifacts/filings_clean.parquet) | 63 | One filing record with excerpts; unique table ID; candidate business key `symbol,date,document_type` |
+
+These are full datasets, not 50-row samples. Together they occupy about 6.13 MB; the largest file is news at about 5.37 MB. Ordinary Git is sufficient for these cleaned outputs; Git LFS is not required. Raw input files are not tracked.
+
+Formal tables, exclusions, provenance metadata, and audit evidence are tracked. `.gitignore` excludes raw inputs in `sources/raw/`, the pre-existing local `data/` and `cleaning_outputs/` directories, environments, caches, and temporary review files. Use access-controlled external storage for sharing raw snapshots, identified by the manifest hashes. If formal outputs become large, use Git LFS for those derived outputs. Do not replace complete deliverables with samples.
+
+## Cleaning and analysis rules
+
+- Keep only the seven target symbols in formal outputs. Preserve every ADBE record in an exclusion table with `_reason` and zero-based `_source_row`.
+- Trim and uppercase symbol/form labels. Preserve date-only calendar values as timezone-naive `datetime64[ns]`; use string IDs, float64 prices, nullable Int64 volume, and stable sorting.
+- Count exact duplicates separately from conflicting IDs and business keys. Quarantine conflicting price-key groups; retain and flag distinct same-day events, then aggregate before joins. IDs belong to their own tables and are not cross-table join keys.
+- Apply one HTML decode and outer whitespace trim to filing excerpts, preserving paragraphs, punctuation, and internal spacing. Trim only news text boundaries. Preserve genuine missing values.
+- Retain numeric observations and flag suspicious prices, large moves, zero volume, possible placeholder/truncated news, short risk excerpts, and repeated risk text. Thresholds are proposals, not proof of errors or automatic deletion rules.
+- Save the three cleaned tables separately. Validate descriptive same-calendar-date event-count joins with explicit relationships and unchanged price rows/fields. Retain unmatched event keys.
+- Keep analysis separate. Formal prices contain no precomputed returns, normalized prices, or volatility. A temporary return is used only for a quality flag.
+- News has dates but no publication times. Neither same-day joins nor mapping to a later trading date establishes information availability or eliminates leakage. No predictive panel is provided.
+
+`validation_report.json` records provenance, environment, missingness, conversions, duplicates, exclusions, flags, numeric ranges, volume reconciliation, joins, and output hashes. `text_changes.csv` records source positions, rules, and before/after text hashes; the original and transformed text remain recoverable from the Parquet files.
+
+## Executed validation results
+
+| Table | Raw | ADBE excluded | Other exclusions | Formal output |
+|---|---:|---:|---:|---:|
+| prices | 2,656 | 332 | 0 | 2,324 |
+| news | 3,888 | 486 | 0 | 3,402 |
+| filings | 73 | 10 | 0 | 63 |
+
+The results naturally match historical comparison targets; the code does not add or remove rows to force those counts.
+
+- Source fields have no missing values before or after cleaning. No exact duplicates, ID conflicts, price-key conflicts, invalid numeric domains, or OHLC inconsistencies were found in this snapshot.
+- All 13,944 retained price/volume values are exactly preserved. Volume reconciles: 159,456,800,900 raw = 158,002,379,300 retained + 1,454,421,600 excluded ADBE shares.
+- Filing formatting changed 146 source cells: 126 in the formal table and 20 in the ADBE exclusion table.
+- Prices cover December 2, 2024–March 31, 2026, with 332 observations per company. News covers December 1, 2024–March 31, 2026, with 486 per company. Filings span January 26, 2024–February 25, 2026 overall, with nine per company; company-specific bounds are in `coverage.csv`.
+- Retained flags include seven price moves exceeding 12%, seven placeholder/short news records, one possible truncated news record, nine short risk excerpts, and seven risk texts matching the preceding filing. All news records have unverified timing. Zero future-date detections does not establish absence of leakage.
+- Both aggregated event joins preserve 2,324 price rows and every price field. The 1,078 unmatched news and 28 unmatched filing records remain available and audited.
+- All 2,317 calculable adjusted-close returns match independent Decimal ratios; seven first-observation returns remain missing.
+- Eleven risk tests passed. Two fresh-process full runs produced 12 byte-identical files, including formal datasets, exclusions, and validation reports. Source SHA256 hashes were unchanged.
+
+See the [actual validation report](artifacts/validation_report.md) and [reproducibility record](artifacts/verification.md). Historical branch evidence is not counted as a newly executed check.
+
+## Analysis interface
+
+```python
+import pandas as pd
+from team_cleaning.analysis import interval_metrics
+
+prices = pd.read_parquet("artifacts/prices_clean.parquet")
+series, metrics = interval_metrics(prices, "2025-01-01", "2025-06-30")
 ```
 
-The script and notebook implement the same pipeline and can run independently. Running both is optional. Keep their cleaning rules synchronized if you edit them.
+The inclusive interval is selected before calculations. Normalized price starts at 100 using the interval's first actual observation, without skipping a missing endpoint. Returns use `adj_close` and `pct_change(fill_method=None)`, do not cross the interval's left boundary, and never forward-fill missing prices. Daily volatility is the sample standard deviation of valid returns (`ddof=1`); fewer than two returns yields missing volatility. Average volume uses valid observations only.
 
-## Setup and execution
+Open questions include screening thresholds, conflict handling, interval conventions, upstream revision/license, event-date meaning, and price adjustment methodology. Exchange-calendar completeness and news factual accuracy have not been independently verified. The 15 weekdays without observed prices are diagnostics, not certified exchange holidays.
 
-Use Python 3.10 or later. Open a terminal in the project root and install the existing dependencies into your chosen Python environment.
+## Zack individual Module 6 work
 
-### Run the standalone script
-
-```sh
-python -m pip install -r requirements.txt
-python cleaning.py
-```
-
-The default input and output paths are relative to the script's directory. Optional paths can be supplied explicitly:
-
-```sh
-python cleaning.py --data-dir data --output-dir cleaning_outputs
-```
-
-### Run the notebook
-
-```sh
-python -m pip install -r requirements-notebook.txt
-python -m jupyterlab
-```
-
-Open `Herculean_Mag7_Module6.ipynb` from the project root, using the Python environment where the dependencies were installed. Select **Restart Kernel and Run All**. The notebook resolves `data/` and `cleaning_outputs/` relative to its current working directory.
-
-### Verify reproducibility
-
-1. Complete one full execution to establish `output_hashes.json`.
-2. Restart the notebook kernel and run all cells again, or run `python cleaning.py` again in a new process.
-3. Confirm the message `PASS: outputs match previous complete run.` and save the notebook with its outputs.
-
-The first run reports a saved baseline and leaves checklist item 13 unresolved. A matching subsequent run completes that check. Original source hashes are also checked for changes. Do not silently replace a failing baseline; investigate the inputs, code, and dependency versions. For intentional changes, preserve previous results and choose a new output directory. The observed environment is recorded in `environment.json`.
-
-## Cleaning and verification rules
-
-- Preserve source files and track original row positions with `_source_row`.
-- Parse dates and numeric fields; count conversion failures. Preserve identifiers as strings.
-- Trim text boundaries, normalize line endings, and uppercase symbol/form codes without rewriting narrative content.
-- Count exact duplicates, repeated IDs, and logical duplicate keys separately. Remove exact duplicate records; quarantine conflicting price keys and invalid join keys.
-- Retain nonidentical repeated news/filing keys for investigation and aggregate events before joining.
-- Keep missing measurements missing. Replace impossible numeric values with missing and retain flags; do not impute prices or returns.
-- Check OHLC consistency, zero volume, unusual returns, date gaps, missing text, and unexpected filing forms.
-- Validate joins on `symbol,date`; report unmatched keys on both sides and check that joins do not multiply price rows or volume totals.
-- Reconcile starting and final row counts and volume totals.
-- Compute `adj_close[t] / adj_close[t-1] - 1` within each symbol, with no forward filling. The first observation and missing denominators produce missing returns.
-- Verify all returns against an independent Decimal calculation and test missing-value behavior with a separately labeled artificial example.
-- Predeclare five real-record expectations and compare them against actual outputs.
-
-## Expected outputs
-
-All generated files are written to `cleaning_outputs/` by default.
-
-| Output | Purpose |
-|---|---|
-| `cleaned_prices.csv` / `.parquet` | Cleaned prices, return calculations, and flags |
-| `cleaned_news.csv` / `.parquet` | Cleaned news digest records |
-| `cleaned_filings.csv` / `.parquet` | Cleaned filing excerpts |
-| `analysis_panel.csv` | Price-day panel with aggregated news and filing counts |
-| `cleaned_sample_max50.csv` | At most 50 cleaned rows total across the three tables |
-| `cleaning_log.csv` | Cleaning rules, actions, reasons, and checks |
-| `checklist_14.csv` | Assignment checklist statuses and evidence references |
-| `type_checks.csv`, `text_changes.csv` | Conversion results and text before/after evidence |
-| `duplicates.csv`, `logical_duplicates_*.csv` | Duplicate counts and event-key detail |
-| `missing_before_after.csv` | Missing counts before and after cleaning |
-| `excluded_*.csv` | Excluded or quarantined records and their reasons |
-| `suspicious.csv`, `flagged_*.csv`, `numeric_changes.csv` | Suspicious-value counts, flagged records, and numeric changes |
-| `merge_audit.csv`, `unmatched_*_keys.csv` | Join cardinality and unmatched-key evidence |
-| `row_reconciliation.csv`, `volume_reconciliation.csv` | Row and total reconciliation |
-| `metrics.csv`, `descriptive_comparison.csv` | Metrics, valid denominators, and filing-day comparison |
-| `record_check_plan.csv`, `record_checks.csv` | Five original/expected/actual record checks |
-| `local_source_manifest.json` | Local snapshot identity and source hashes |
-| `environment.json`, `output_hashes.json` | Environment metadata and reproducibility baseline |
-
-For the current local snapshot, the expected scope-filtered row counts are:
-
-| Table | Original | Excluded ADBE rows | Cleaned |
-|---|---:|---:|---:|
-| prices | 2,656 | 332 | 2,324 |
-| news | 3,888 | 486 | 3,402 |
-| filings | 73 | 10 | 63 |
-
-Empty issue files represent zero detected issues, not a failure to generate evidence. Inspect actual outputs before describing checks as passed in the report.
-
-## Sample selection
-
-The sample contains up to 25 price rows, 15 news rows, and 10 filing rows, with at most 50 rows total. Selection prioritizes predeclared retained record checks, flagged observations, missing source fields, company coverage and first observations, then stable-order context. The first price observation illustrates a missing return because no prior price is available.
-
-This is a purposive sample for reviewing cleaning decisions, not a representative statistical sample. Full text is retained, so some CSV cells are long. The sample is generated at `cleaning_outputs/cleaned_sample_max50.csv`; it is not placed inside `data/`.
-
-## Limitations
-
-- The seven-company universe and short observation window limit generalization.
-- News records are summarized daily digests, not individual original articles; filing excerpts cover selected sections.
-- Daily dates do not establish publication time or whether an event preceded the day's price movement. Comparisons describe associations, not causality.
-- Weekend and out-of-window events can lack matching prices. Unmatched counts do not automatically indicate an erroneous join.
-- An observed-row return can span multiple trading days if observations are missing. An exchange calendar and upstream price-adjustment methodology are not independently verified here.
-- Missing or quarantined observations can affect coverage and estimates. Means use nonmissing return counts rather than treating missing returns as zero.
-
-## Submission checklist
-
-Commit the script, executed notebook, dependency files, this README, and the cleaned sample to your individual branch. Include compact verification evidence such as the cleaning log, checklist, record checks, reconciliation tables, and local source manifest. Full cleaned datasets can be regenerated and are not required in place of the requested sample.
-
-The existing `.gitignore` excludes `data/`; verify that the sample and selected evidence are actually tracked. If you choose to ignore all of `cleaning_outputs/`, copy the sample and selected evidence into a tracked folder such as `samples/` or `evidence/` before committing.
-
-Submit a separate individual PDF on Gradescope containing the 14-item checklist, decision log, five record checks, and an explanation of how a Codex suggestion was independently checked. Include the same individual branch name, branch URL, and submitted analysis commit ID in both the PDF and this README.
+The original individual submission instructions are preserved in [README-module6-zack.md](README-module6-zack.md). Individual scripts and notebooks remain available on this branch.

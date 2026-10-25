@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "command": "python verify_cleaning.py",
+  "risk_tests_exit_code": 0,
+  "test_output": "test_adbe_exclusion_complete_even_duplicates (test_risks.RiskTests.test_adbe_exclusion_complete_even_duplicates) ... ok\ntest_event_key_repeat_kept_but_repeated_id_quarantined (test_risks.RiskTests.test_event_key_repeat_kept_but_repeated_id_quarantined) ... ok\ntest_exact_duplicate_vs_conflicting_price_key (test_risks.RiskTests.test_exact_duplicate_vs_conflicting_price_key) ... ok\ntest_fractional_and_unparseable_numeric_values_fail (test_risks.RiskTests.test_fractional_and_unparseable_numeric_values_fail) ... ok\ntest_html_decode_preserves_paragraphs_and_missing (test_risks.RiskTests.test_html_decode_preserves_paragraphs_and_missing) ... ok\ntest_interval_baseline_volatility_missing_endpoints (test_risks.RiskTests.test_interval_baseline_volatility_missing_endpoints) ... ok\ntest_invalid_dates_and_null_symbols_never_become_strings (test_risks.RiskTests.test_invalid_dates_and_null_symbols_never_become_strings) ... ok\ntest_join_aggregates_events_and_preserves_price_values (test_risks.RiskTests.test_join_aggregates_events_and_preserves_price_values) ... ok\ntest_numeric_anomalies_retained_not_clipped (test_risks.RiskTests.test_numeric_anomalies_retained_not_clipped) ... ok\ntest_returns_no_fill_and_no_cross_symbol (test_risks.RiskTests.test_returns_no_fill_and_no_cross_symbol) ... ok\ntest_source_hash_and_output_overlap_protection (test_risks.RiskTests.test_source_hash_and_output_overlap_protection) ... ok\n\n----------------------------------------------------------------------\nRan 11 tests in 0.292s\n\nOK\n",
+  "fresh_process_runs": 2,
+  "compared_files": 12,
+  "identical_output_sha256": {
+    "coverage.csv": "07bbd316498efe7128af1692fa9e5e8944d5656002a7433fabcc85beca1b62e3",
+    "excluded_filings.parquet": "f96241e5a3c87982815658595cc423e22ce3a82cae22b9c1d440defb5cfd1d00",
+    "excluded_news.parquet": "a8da901939f3fc503fe118f32271384bf902880daf3be428d19e4cbf9a39bb64",
+    "excluded_prices.parquet": "9fd1f9a714d88c936e1c1a67c49e28bc09ee63f739715a7511c01fd4da2c5aed",
+    "filings_clean.parquet": "d56aa0d85cf96dc991f8e74bc06541479bc044c6652995cbfd3f81f582ab2a6c",
+    "news_clean.parquet": "94fc868bb681c810999d861e40e3cfb402473bc77141554003c6f362f027ba0d",
+    "prices_clean.parquet": "84a3c2c4eaab0977f98666cc431faafdf1eb39cbc20deff36579ab430060ae1e",
+    "text_changes.csv": "c8a5fbf2487e339a8bdc5cdaac016c42605ce11109059695cf198d6071c46c26",
+    "unmatched_filings.csv": "9d7077719abb5f5a9138e328ff8a8998bcc0ae308b93a011fe57b1b758cf6ec2",
+    "unmatched_news.csv": "ba651e937a7f4c738012a57c52c1b61395941056b3a49a58bdcc010399e73e80",
+    "validation_report.json": "3b2d685a1d9c45c37c081ef0f950832e32ad74ed0744b7fb167393f4eed90ecb",
+    "validation_report.md": "203c4fc349966741d791aad78a848cbe81e64206df9866f78893c8255b23c218"
+  },
+  "raw_sha256_unchanged": {
+    "prices": "736c124db22e976dbf4ec1dd65e5a983497e5890e7999f7925b343dee5c965d5",
+    "news": "1fd109796eada02af37a15178cc150ec252e7c02bc440c3f76641eb8fab6da25",
+    "filings": "822a854865651e042c9d64288785efa0f2c0fecdec2a16016ff3c2e7a5601299"
+  }
+}

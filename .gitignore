@@ -1,3 +1,11 @@
-data/
-cleaning_outputs/
+.venv/
+.uv-cache/
+.review/
 __pycache__/
+*.py[cod]
+.pytest_cache/
+# Preserve pre-existing local originals and individual-run artifacts.
+/data/
+/cleaning_outputs/
+# Raw inputs stay local. Only their manifest, cleaned tables and audit evidence are tracked.
+/sources/raw/
