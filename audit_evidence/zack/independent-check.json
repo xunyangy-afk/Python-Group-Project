@@ -1,0 +1,74 @@
+{
+  "app_commit": "e630f6823fd12bc11cf0525fab7dc9be59ff5eae",
+  "method": "Independent pandas row selection + Decimal endpoint ratio; no dashboard imports",
+  "source_hashes": {
+    "prices_clean.parquet": "84a3c2c4eaab0977f98666cc431faafdf1eb39cbc20deff36579ab430060ae1e",
+    "news_clean.parquet": "94fc868bb681c810999d861e40e3cfb402473bc77141554003c6f362f027ba0d"
+  },
+  "source_bytes_unchanged": true,
+  "small_case": {
+    "prices": [
+      100,
+      120,
+      90
+    ],
+    "expected_return_pct": "-10",
+    "calculated_return_pct": "-10.0"
+  },
+  "interval_results": [
+    {
+      "symbol": "AAPL",
+      "first_date": "2026-03-02",
+      "last_date": "2026-03-31",
+      "first_id": "311",
+      "last_id": "332",
+      "n_prices": 22,
+      "first_adj_close": "264.7200012207031",
+      "last_adj_close": "253.7899932861328",
+      "return_fraction": "-0.0412889388190116515107363934146434016165",
+      "return_pct": "-4.128893881901165151073639341464340161650",
+      "expected_ui_pct": "-4.13",
+      "observed_screenshot_pct": "-4.13",
+      "agrees_at_display_precision": true
+    },
+    {
+      "symbol": "NVDA",
+      "first_date": "2026-03-02",
+      "last_date": "2026-03-31",
+      "first_id": "2303",
+      "last_id": "2324",
+      "n_prices": 22,
+      "first_adj_close": "182.4701232910156",
+      "last_adj_close": "174.39999389648438",
+      "return_fraction": "-0.0442271274276525586348469445452439111087",
+      "return_pct": "-4.422712742765255863484694454524391110870",
+      "expected_ui_pct": "-4.42",
+      "observed_screenshot_pct": "-4.42",
+      "agrees_at_display_precision": true
+    }
+  ],
+  "expected_aapl_news": {
+    "count": 30,
+    "first_date": "2026-03-02",
+    "last_date": "2026-03-31",
+    "first_id": "457",
+    "last_id": "486"
+  },
+  "single_observation_source_rows": [
+    {
+      "symbol": "AAPL",
+      "date": "2026-03-02",
+      "id": "311",
+      "adj_close": "264.7200012207031",
+      "volume": 41827900
+    },
+    {
+      "symbol": "NVDA",
+      "date": "2026-03-02",
+      "id": "2303",
+      "adj_close": "182.4701232910156",
+      "volume": 209095300
+    }
+  ],
+  "scope_note": "UI values are transcribed from student screenshots; this script independently checks source values, not browser execution."
+}

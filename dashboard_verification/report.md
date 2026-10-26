@@ -1,6 +1,6 @@
 # Executed dashboard verification
 
-Date: 2026-10-25 (America/Los_Angeles). Built locally on `Zack-Work`, based on merge commit `0708cf2`. The dashboard implementation and this evidence are preserved together in a separate dashboard commit; use the commit containing this report as the audit version. No remote push was performed as part of this work. See `build.json` for the final HTML identity, environment, input shapes, source hashes and byte size.
+Date: 2026-10-25 (America/Los_Angeles). Built on `Zack-Work`, based on merge commit `0708cf2`. The dashboard implementation was preserved in commit `e630f6823fd12bc11cf0525fab7dc9be59ff5eae`, which is the audited app version. Later documentation and screenshot-removal commits do not change that application. See `build.json` for the final HTML identity, environment, input shapes, source hashes and byte size.
 
 ## Result
 
@@ -39,7 +39,7 @@ The final plotted adjusted close, shares and date matched these source values ex
 - Shortlist tests covered frozen values after date/company changes, retaining a hidden company's entry, rejecting a third entry, removing/re-adding, and a real downloaded CSV. A standard CSV reader recovered commas, quotes and line breaks; formula-like reasons were escaped only in export. Numeric percentage-point units and column order matched the contract. `tested_shortlist.csv` is synthetic test output, not the student's research decision.
 - Literal script/image markup in an in-memory event fixture remained inert, selectable text. Distinct same-day records remained readable. The synthetic fixture was removed by reloading.
 - Keyboard checks covered controls, tab navigation, shortlist add/reason/remove and export availability. Reload cleared the shortlist.
-- `desktop.png`: 1440×900 browser viewport, full-page capture. `mobile.png`: 390×844 viewport, full-page capture. Both were visually inspected; no document-level horizontal overflow was measured. The comparison table retains its own horizontal scroll container. The longest available news/filing excerpts were checked at phone width for exact text and containment.
+- Desktop (1440×900 viewport) and mobile (390×844 viewport) full-page screenshots were captured and visually inspected during verification; they were later removed from the project folder at the student's request. No document-level horizontal overflow was measured. The comparison table retains its own horizontal scroll container. The longest available news/filing excerpts were checked at phone width for exact text and containment. Rerunning the browser-check script will generate fresh screenshots.
 
 ## Commands actually executed
 

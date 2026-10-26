@@ -44,7 +44,7 @@ On macOS/Linux use `python3.13` for environment creation and `.venv-dashboard/bi
 | `dashboard_assets/render.js` | Controls, table, linked charts, event reader and shortlist rendering |
 | `dashboard_assets/template.html`, `style.css` | Accessible page structure and responsive visual layout |
 | `tests/dashboard/` | Arithmetic, schema, reference-parity and browser checks |
-| `dashboard_verification/` | Executed evidence, reference values and screenshots; separate from cleaning verification |
+| `dashboard_verification/` | Executed evidence and reference values; screenshots were removed at the student's request; separate from cleaning verification |
 
 Browser verification uses an independent environment with Playwright and an installed Chrome executable. It reads JSON references rather than importing analysis packages:
 
