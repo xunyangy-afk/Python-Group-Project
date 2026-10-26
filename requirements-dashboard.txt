@@ -1,0 +1,9 @@
+pandas==3.0.1
+numpy==2.3.5
+pyarrow==25.0.0
+python-dateutil==2.9.0.post0
+six==1.17.0
+tzdata==2026.5
+plotly==6.9.0
+narwhals==2.27.1
+packaging==26.3

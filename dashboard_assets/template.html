@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; connect-src 'none'; worker-src blob:;">
+<title>Magnificent Seven Research Workbench</title><style>/*STYLES*/</style></head>
+<body><main>
+<header><div class="eyebrow">EQUITY RESEARCH / HISTORICAL SNAPSHOT</div><h1>Magnificent Seven Research Workbench</h1>
+<p>Compare historical price performance, trading activity, and company disclosures to choose one or two stocks for deeper research.</p>
+<div id="coverage" class="coverage"></div></header>
+<section class="panel filters" aria-label="Research filters">
+<fieldset><legend>Compare companies</legend><div id="companies" class="company-options"></div></fieldset>
+<form id="rangeForm" class="control-row"><label>Start date<input type="date" id="start" required></label><span class="range-arrow" aria-hidden="true">→</span><label>End date<input type="date" id="end" required></label><button type="submit" class="primary">Apply dates</button><button type="button" id="full">Full history</button></form>
+<div class="control-row modes"><label>Price display<select id="priceMode"><option value="normalized_price">Indexed to 100</option><option value="adj_close">Adjusted close (source units)</option></select></label>
+<label>Volume display<select id="volumeMode"><option value="volume">Shares</option><option value="relative_volume">Relative volume · preceding 20 observations</option></select></label>
+<label>Sort companies by<select id="sort"><option value="period_return">Interval return</option><option value="daily_volatility">Daily volatility</option><option value="average_volume">Average daily volume</option><option value="max_drawdown">Maximum drawdown</option></select></label></div>
+<div id="notice" role="status" aria-live="polite">Select companies and a historical interval to begin.</div></section>
+<section class="panel"><div class="section-top"><h2>Company comparison</h2><span id="rangeLabel" class="muted"></span></div>
+<p class="note">Select a company to read its evidence. Metrics use the selected interval; daily volatility is not annualized.</p>
+<div class="table-scroll" role="region" aria-label="Company comparison table" tabindex="0"><table><thead><tr><th scope="col">Company</th>
+<th scope="col" data-key="period_return"><button data-sort="period_return">Interval return</button></th><th scope="col" data-key="daily_volatility"><button data-sort="daily_volatility">Daily volatility</button></th><th scope="col" data-key="average_volume"><button data-sort="average_volume">Average daily volume</button></th><th scope="col" data-key="max_drawdown"><button data-sort="max_drawdown">Maximum drawdown</button></th><th scope="col">Observations</th><th scope="col">Research action</th></tr></thead><tbody id="comparison"></tbody></table></div></section>
+<div class="workspace"><section class="panel chart-panel" aria-label="Price and volume charts"><div class="section-top"><h2>Price & trading activity</h2><span class="muted">Drag horizontally to select dates</span></div>
+<div id="legend" class="legend" aria-label="Company color legend"></div><div id="priceChart" class="price-chart" aria-label="Adjusted price chart"></div><div id="volumeChart" class="volume-chart" aria-label="Volume chart"></div>
+<div class="section-top overview-title"><h3>Full-history overview</h3><span class="note">Base 100 at full-history start · drag selection handles</span></div><div id="navigator" aria-label="Full history date navigator"></div>
+<p class="note">Date inputs provide a keyboard alternative to chart dragging. Gaps stay gaps; overview baselines differ from the main interval.</p></section>
+<section class="panel event-panel" aria-label="Company event evidence"><div class="eyebrow">READ THE SOURCE</div><h2 id="eventHeading">Company evidence</h2>
+<div class="control-row"><label>Focus company<select id="focusCompany"></select></label><label>Focus date<input type="date" id="focusDate"></label></div>
+<fieldset class="scope"><legend>Evidence range</legend><label><input type="radio" name="scope" value="date" checked>Selected date</label><label><input type="radio" name="scope" value="interval">Selected interval</label></fieldset>
+<div class="tabs" role="tablist" aria-label="Evidence type"><button id="newsTab" role="tab" aria-selected="true" aria-controls="eventList" data-tab="news">News</button><button id="filingsTab" role="tab" aria-selected="false" aria-controls="eventList" data-tab="filings">Filings</button></div>
+<p id="timingNote" class="note">News publication timing is unverified. Calendar dates do not establish availability or explain price movements.</p>
+<div id="eventList" role="tabpanel" aria-labelledby="newsTab"></div></section></div>
+<section class="panel shortlist"><div class="section-top"><div><div class="eyebrow">YOUR RESEARCH DECISION</div><h2>Research shortlist <span id="shortCount" class="muted">0 / 2</span></h2></div><button id="export" class="primary" disabled>Export CSV</button></div>
+<p class="note">Each candidate freezes its own range and metrics when added. Give each a reason. Reloading clears this session; export CSV to save your work.</p><div id="shortlist"></div></section>
+<footer><strong>Source: TheFinAI/Herculean · team-local-sha256-v1</strong><p>Adjusted-close changes are not verified total shareholder returns; upstream revision and price-adjustment methodology remain unconfirmed. Daily volatility is the sample standard deviation of observed-session returns, without annualization. Maximum drawdown is the largest observed peak-to-trough decline inside the interval. Relative volume divides today's shares by the mean of exactly 20 preceding observations, excluding today.</p><p>Events retain date-only source dates and original excerpts. Flags are review cues. This historical snapshot supports research prioritization; it supplies no live prices or automated recommendations.</p><details><summary>Input provenance and coverage</summary><pre id="provenance"></pre></details></footer>
+</main><script>/*PLOTLY*/</script><script type="application/json" id="payload">/*PAYLOAD*/</script><script>/*APP*/</script></body></html>

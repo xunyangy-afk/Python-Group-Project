@@ -1,6 +1,6 @@
 # Magnificent Seven Data Cleaning
 
-Prepare comparable prices, news digests, and filing excerpts for AAPL, AMZN, GOOGL, META, MSFT, NVDA, and TSLA. The intended user is a junior equity research analyst selecting 1–2 stocks for deeper research using price performance, volatility, trading volume, news, and filings. This repository provides cleaning, separate analysis functions, complete datasets, and validation evidence. It does not implement a dashboard.
+Prepare comparable prices, news digests, and filing excerpts for AAPL, AMZN, GOOGL, META, MSFT, NVDA, and TSLA. The intended user is a junior equity research analyst selecting 1–2 stocks for deeper research using price performance, volatility, trading volume, news, and filings. This repository provides cleaning, separate analysis functions, complete datasets, and validation evidence. This branch also includes a standalone offline `dashboard.html`; see [dashboard usage and build instructions](README-dashboard.md) and [executed dashboard verification](dashboard_verification/report.md).
 
 The unified solution was merged through [PR #1](https://github.com/xunyangy-afk/Python-Group-Project/pull/1). [CLEANING_DECISIONS.md](CLEANING_DECISIONS.md) compares the six source branches and records adopted rules, reasons, and open questions. Rules without confirmed team agreement remain proposals.
 

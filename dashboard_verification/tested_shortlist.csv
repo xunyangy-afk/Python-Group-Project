@@ -1,0 +1,4 @@
+symbol,range_start,range_end,first_observation_date,last_observation_date,period_return_pct,daily_volatility_pct,average_daily_volume_shares,max_drawdown_pct,n_prices,n_returns,data_as_of,reason
+"AAPL","2026-01-05","2026-03-31","2026-01-05","2026-03-31","-4.951185734226704","1.5910585497876557","48185598.333333336","11.239466679319177","60","59","2026-03-31","Research, ""cash flow""
+second line"
+"NVDA","2026-01-05","2026-03-31","2026-01-05","2026-03-31","-7.288202067413396","2.367012915793406","181943065","15.535413840992573","60","59","2026-03-31","'=HYPERLINK(""test"")"
