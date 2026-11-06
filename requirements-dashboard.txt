@@ -1,0 +1,9 @@
+pandas==3.0.1
+numpy==2.3.5
+# Streamlit explicitly excludes 25.0.0; use its compatible patch release.
+pyarrow==25.0.1
+python-dateutil==2.9.0.post0
+six==1.17.0
+tzdata==2026.5
+plotly==6.9.0
+streamlit==1.67.0
