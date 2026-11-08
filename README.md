@@ -1,5 +1,8 @@
 # Magnificent Seven Data Cleaning
 
+**Live app:** [Open dashboard](https://python-group-project-axbyl7drczrarqhqkxbrtq.streamlit.app/)
+**Demo video:** [Watch demo](https://youtu.be/rcjM6uIzBq8?si=R3smqC01dMyful57)
+
 Prepare comparable prices, news digests, and filing excerpts for AAPL, AMZN, GOOGL, META, MSFT, NVDA, and TSLA. The intended user is a junior equity research analyst selecting 1–2 stocks for deeper research using price performance, volatility, trading volume, news, and filings. This repository provides cleaning, separate analysis functions, complete datasets, and validation evidence. It does not implement a dashboard.
 
 The unified solution was merged through [PR #1](https://github.com/xunyangy-afk/Python-Group-Project/pull/1). [CLEANING_DECISIONS.md](CLEANING_DECISIONS.md) compares the six source branches and records adopted rules, reasons, and open questions. Rules without confirmed team agreement remain proposals.
