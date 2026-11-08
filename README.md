@@ -7,6 +7,24 @@ Prepare comparable prices, news digests, and filing excerpts for AAPL, AMZN, GOO
 
 The unified solution was merged through [PR #1](https://github.com/xunyangy-afk/Python-Group-Project/pull/1). [CLEANING_DECISIONS.md](CLEANING_DECISIONS.md) compares the six source branches and records adopted rules, reasons, and open questions. Rules without confirmed team agreement remain proposals.
 
+## Run the dashboard locally
+
+From the repository root, install dependencies and launch the app:
+
+```bash
+python -m pip install -r requirements.txt
+python -m streamlit run app.py
+```
+
+The dashboard loads the three complete cleaned datasets from `artifacts/`.
+No additional row sampling is applied when loading these files. Company
+and date selections filter the displayed analysis. Raw source files are
+only needed to reproduce the cleaning pipeline, not to launch the dashboard.
+
+## Repository
+
+https://github.com/xunyangy-afk/Python-Group-Project
+
 ## Run the complete workflow
 
 Use Python 3.13 from the repository root. Raw inputs are intentionally not stored in Git. Before running, place the complete `prices.parquet`, `news.parquet`, and `filings.parquet` snapshot in the ignored `sources/raw/` directory. Obtain the files from a team member holding this exact snapshot, or from an authorized source, and match all three SHA256 hashes in [sources/manifest.json](sources/manifest.json). Do not substitute samples or assume the latest upstream files are identical. Source access may require authentication; exact upstream revision remains unconfirmed.
